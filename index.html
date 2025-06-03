@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document Viewer</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        /* Custom styles if needed */
+        .font-inter { font-family: 'Inter', sans-serif; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        /* Ensure smooth scrolling for linked elements */
+        html, body, #app-root {
+            height: 100vh;
+            min-height: 100vh;
+            max-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+        html {
+            scroll-behavior: smooth;
+        }
+        .expanded-block {
+            height: auto !important; /* Override fixed height when expanded */
+            overflow-y: visible !important;
+        }
+        .preview-tooltip {
+            position: fixed;
+            z-index: 50;
+            padding: 0.75rem; /* p-3 */
+            background-color: #2D3748; /* bg-gray-800 */
+            color: white;
+            font-size: 0.75rem; /* text-xs */
+            border-radius: 0.5rem; /* rounded-lg */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-lg */
+            max-width: 20rem; /* max-w-xs */
+            word-break: break-word;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-inter antialiased flex flex-col h-screen" style="height:100vh;min-height:100vh;max-height:100vh;">
+    <div id="app-root" class="flex flex-col h-full" style="height:100vh;">
+        <!-- App content will be rendered here by JavaScript -->
+    </div>
+    <script src="script.js"></script>
+</body>
+</html> 
