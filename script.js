@@ -24,24 +24,24 @@ const APPROX_LINE_CHAR_LIMIT = 180;
 // Mock data for parsed blocks
 let parsedBlocks = [
    
-    { id: 'text_info_title', type: 'title', content: '论文题目: 基于语音辅助的多语言文本分类语言偏见去偏研究方佳俊', disabled: false, area: { top: '29%', left: '15%', width: '70%', height: '5%' }, isExpanded: false, page: 1 },
-    { id: 'text_info_author', type: 'catlog', content: `论文作者: 方佳俊 指导教师 阳爱民\\n\\n该作者在多语言文本分类领域进行了深入研究，尤其关注如何消除语言偏见对模型性能的影响。他的研究旨在开发创新的语音辅助去偏技术，以提高跨语言文本分类的公平性和准确性。\\n\\n研究内容涵盖了以下几个方面：\\n1. 多语言数据集的构建与偏见分析。\\n2. 基于语音特征的语言偏见识别方法。\\n3. 深度学习模型在去偏任务中的应用。\\n4. 评估去偏效果的指标与方法。\\n5. 实际应用场景中的案例分析与效果验证。\\n\\n方佳俊同学的这项工作对于推动多语言自然语言处理技术的发展，以及构建更公平、更具包容性的人工智能系统具有重要意义。他的研究成果不仅填补了相关领域的空白，也为未来的研究提供了宝贵的思路和方向。\\n\\n在研究过程中，他积极参与学术交流，多次在国内外顶级会议上发表论文，并与多个研究机构建立了合作关系。这些经历进一步丰富了他的学术视野和实践能力。\\n\\n为了充分展示该研究的深度和广度，我们在此增加更多详细信息。研究团队在数据预处理阶段投入了大量精力，确保了训练数据的多样性和代表性。他们采用了先进的自然语言处理技术，对不同语言的文本数据进行了细致的特征提取和表示学习。在模型设计方面，研究人员探索了多种神经网络架构，包括循环神经网络（RNN）、长短期记忆网络（LSTM）和Transformer等，并针对语音辅助去偏的特点进行了创新性改进。\\n\\n实验结果表明，所提出的语音辅助去偏方法在多个公开数据集上均取得了显著的性能提升，有效降低了语言偏见对文本分类结果的影响。这些成果为构建更加鲁棒和公平的AI系统提供了坚实的基础。未来的工作将侧重于将该技术应用于更广泛的领域，例如情感分析、意图识别和机器翻译等，并进一步探索多模态信息融合的潜力。\\n\\n为了确保滚动条能够出现，我们继续增加一些内容。这项研究的创新之处在于其跨学科的融合，将语音信号处理与自然语言处理技术相结合，为解决多语言环境下的偏见问题提供了新的视角。此外，研究团队还开发了一套可扩展的评估框架，能够全面衡量去偏算法的有效性，并为不同应用场景提供定制化的解决方案。这些努力共同构成了方佳俊同学在多语言文本分类语言偏见去偏研究方面的全面贡献。他的研究不仅具有理论价值，更具备实际应用潜力，有望在未来为全球范围内的多语言信息处理带来积极影响。\\n\\n我们还将进一步探讨二维码在现代商业中的多种应用。除了作为联系客服的便捷工具，二维码还可以被集成到营销活动中，例如扫描二维码获取折扣券、参与抽奖活动或直接跳转到产品购买页面。在物流和仓储管理中，二维码被广泛用于追踪货物，提高效率和准确性。在教育领域，学生可以通过扫描二维码快速访问在线课程资料或提交作业。这些多样化的应用场景充分体现了二维码作为一种高效信息载体的巨大潜力，它极大地简化了信息获取和交互过程，为用户带来了前所未有的便利。方佳俊的研究论文还详细讨论了在不同语言对（如中英、中日）之间进行偏见去偏的挑战和机遇，并提出了针对性的策略。他强调了跨文化语境理解的重要性，以及如何通过引入文化敏感性特征来进一步提升模型的去偏能力。`, disabled: false, area: { top: '34%', left: '15%', width: '70%', height: '3%' }, isExpanded: false, page: 1 },
-    { id: 'text_detection_desc_1', type: 'text', content: `1. 检测依据:学校模板《广东工业大学硕士专业学位论文模板》;国家标准《GB7713 学位论文编写格式》,《GB7714参考文献著录规则》,《GB15834标点符号用法》,《GB15835出版物上数字用法》,《GB3100国际单位制及其应用》,《GB3101有关量单位符号的一般原则》,《GB3102空间和时间的量和单位》。\\n\\n本检测报告严格遵循上述国家标准和学校规定，确保检测过程的严谨性和结果的准确性。所有引用规则均经过最新修订，以适应当前学术规范的要求。检测范围涵盖了从论文结构、引用格式到标点符号使用等多个维度，旨在提供全面、细致的格式审查服务。\\n\\n我们致力于帮助学生和研究人员提升论文质量，符合各项出版和学术要求。`, disabled: false, area: { top: '55%', left: '10%', width: '80%', height: '15%' }, isExpanded: false, page: 1 },
-    { id: 'table_qr_code_1', type: 'table', url: 'https://placehold.co/600x400/000000/FFFFFF?text=Table+1', imageDescription: '左上角表格，用于展示数据统计。', disabled: false, area: { top: '0%', left: '0%', width: '20%', height: '15%' }, page: 1 },
-    { id: 'image_qr_code_2', type: 'image', url: 'https://placehold.co/150x150/000000/FFFFFF?text=QR+Code+2', imageDescription: `右上角二维码，用于微信客服。这个二维码是用户与客服团队进行便捷沟通的桥梁，通过扫描此码，用户可以快速进入客服对话界面，获取帮助、咨询问题或反馈意见。我们致力于提供高效、友好的客户服务体验，确保用户在使用过程中遇到的任何问题都能得到及时解决。此外，该二维码也可能用于推广最新的产品信息、服务更新或特别优惠活动，旨在增强用户粘性并拓展服务范围。我们鼓励所有用户积极利用此功能，以便我们能更好地为您服务，并持续优化我们的产品和体验。您的每一次反馈都对我们至关重要，帮助我们不断进步。`, disabled: false, area: { top: '0%', left: '80%', width: '20%', height: '15%' }, page: 1 },
-    { id: 'text_detection_result', type: 'text', content: '检测结果: 全文页数 72, 字符统计 65979, 中文字符 31115, 非中文单词 3372, 问题总数 = 6, 万字差错率 0.90/10000, 结论 合格', disabled: false, area: { top: '80%', left: '10%', width: '80%', height: '10%' }, isExpanded: false, page: 1 },
-    { id: 'text_page2_intro', type: 'text', content: '这是第二页的介绍内容，详细阐述了检测流程的初步阶段。', disabled: false, area: { top: '20%', left: '10%', width: '80%', height: '10%' }, isExpanded: false, page: 2 },
-    { id: 'image_page2_flowchart', type: 'image', url: 'https://placehold.co/400x200/ADD8E6/FFFFFF?text=Flowchart', imageDescription: '第二页的流程图，展示了检测步骤。', disabled: false, area: { top: '40%', left: '15%', width: '70%', height: '30%' }, page: 2 },
-    { id: 'text_page3_details', type: 'text', content: '第三页提供了具体的检测细节和数据分析方法，包括各种算法的运用和结果的解读。本页内容较为专业，旨在为技术人员提供深入的参考。', disabled: false, area: { top: '15%', left: '10%', width: '80%', height: '20%' }, isExpanded: false, page: 3 },
-    { id: 'image_page3_graph', type: 'chart', url: 'https://placehold.co/400x250/90EE90/FFFFFF?text=Graph', imageDescription: '第三页的数据图表，显示了性能趋势。', disabled: false, area: { top: '40%', left: '20%', width: '60%', height: '40%' }, page: 3 },
-    { id: 'text_page4_conclusion', type: 'text', content: '第四页是报告的结论部分，总结了本次检测的发现和建议，并对未来的研究方向提出了展望。', disabled: false, area: { top: '25%', left: '10%', width: '80%', height: '15%' }, isExpanded: false, page: 4 },
-    { id: 'text_page5_appendix', type: 'text', content: '第五页是附录，包含了所有引用的参考文献列表和一些补充材料。', disabled: false, area: { top: '30%', left: '10%', width: '80%', height: '10%' }, isExpanded: false, page: 5 },
-    { id: 'text_page1_extra1', type: 'text', content: '这是第一页的额外文本块1，用于填充内容以测试分页效果。', disabled: false, area: { top: '10%', left: '20%', width: '60%', height: '5%' }, isExpanded: false, page: 1 },
-    { id: 'text_page1_extra2', type: 'text', content: '这是第一页的额外文本块2，用于填充内容以测试分页效果。', disabled: false, area: { top: '15%', left: '20%', width: '60%', height: '5%' }, isExpanded: false, page: 1 },
-    { id: 'text_page1_extra3', type: 'text', content: '这是第一页的额外文本块3，用于填充内容以测试分页效果。', disabled: false, area: { top: '20%', left: '20%', width: '60%', height: '5%' }, isExpanded: false, page: 1 },
-    { id: 'text_page2_extra1', type: 'text', content: '这是第二页的额外文本块1。', disabled: false, area: { top: '10%', left: '20%', width: '60%', height: '5%' }, isExpanded: false, page: 2 },
-    { id: 'text_page2_extra2', type: 'text', content: '这是第二页的额外文本块2。', disabled: false, area: { top: '15%', left: '20%', width: '60%', height: '5%' }, isExpanded: false, page: 2 },
-    { id: 'text_page3_extra1', type: 'text', content: '这是第三页的额外文本块1。', disabled: false, area: { top: '10%', left: '20%', width: '60%', height: '5%' }, isExpanded: false, page: 3 },
+    { id: 'text_info_title', type: 'title', content: '论文题目: 基于语音辅助的多语言文本分类语言偏见去偏研究方佳俊', disabled: false, area: { top: '29%', left: '15%', width: '70%', height: '5%' }, isExpanded: false, page: 1, confidence: 0.95 },
+    { id: 'text_info_author', type: 'catlog', content: `论文作者: 方佳俊 指导教师 阳爱民\\n\\n该作者在多语言文本分类领域进行了深入研究，尤其关注如何消除语言偏见对模型性能的影响。他的研究旨在开发创新的语音辅助去偏技术，以提高跨语言文本分类的公平性和准确性。\\n\\n研究内容涵盖了以下几个方面：\\n1. 多语言数据集的构建与偏见分析。\\n2. 基于语音特征的语言偏见识别方法。\\n3. 深度学习模型在去偏任务中的应用。\\n4. 评估去偏效果的指标与方法。\\n5. 实际应用场景中的案例分析与效果验证。\\n\\n方佳俊同学的这项工作对于推动多语言自然语言处理技术的发展，以及构建更公平、更具包容性的人工智能系统具有重要意义。他的研究成果不仅填补了相关领域的空白，也为未来的研究提供了宝贵的思路和方向。\\n\\n在研究过程中，他积极参与学术交流，多次在国内外顶级会议上发表论文，并与多个研究机构建立了合作关系。这些经历进一步丰富了他的学术视野和实践能力。\\n\\n为了充分展示该研究的深度和广度，我们在此增加更多详细信息。研究团队在数据预处理阶段投入了大量精力，确保了训练数据的多样性和代表性。他们采用了先进的自然语言处理技术，对不同语言的文本数据进行了细致的特征提取和表示学习。在模型设计方面，研究人员探索了多种神经网络架构，包括循环神经网络（RNN）、长短期记忆网络（LSTM）和Transformer等，并针对语音辅助去偏的特点进行了创新性改进。\\n\\n实验结果表明，所提出的语音辅助去偏方法在多个公开数据集上均取得了显著的性能提升，有效降低了语言偏见对文本分类结果的影响。这些成果为构建更加鲁棒和公平的AI系统提供了坚实的基础。未来的工作将侧重于将该技术应用于更广泛的领域，例如情感分析、意图识别和机器翻译等，并进一步探索多模态信息融合的潜力。\\n\\n为了确保滚动条能够出现，我们继续增加一些内容。这项研究的创新之处在于其跨学科的融合，将语音信号处理与自然语言处理技术相结合，为解决多语言环境下的偏见问题提供了新的视角。此外，研究团队还开发了一套可扩展的评估框架，能够全面衡量去偏算法的有效性，并为不同应用场景提供定制化的解决方案。这些努力共同构成了方佳俊同学在多语言文本分类语言偏见去偏研究方面的全面贡献。他的研究不仅具有理论价值，更具备实际应用潜力，有望在未来为全球范围内的多语言信息处理带来积极影响。\\n\\n我们还将进一步探讨二维码在现代商业中的多种应用。除了作为联系客服的便捷工具，二维码还可以被集成到营销活动中，例如扫描二维码获取折扣券、参与抽奖活动或直接跳转到产品购买页面。在物流和仓储管理中，二维码被广泛用于追踪货物，提高效率和准确性。在教育领域，学生可以通过扫描二维码快速访问在线课程资料或提交作业。这些多样化的应用场景充分体现了二维码作为一种高效信息载体的巨大潜力，它极大地简化了信息获取和交互过程，为用户带来了前所未有的便利。方佳俊的研究论文还详细讨论了在不同语言对（如中英、中日）之间进行偏见去偏的挑战和机遇，并提出了针对性的策略。他强调了跨文化语境理解的重要性，以及如何通过引入文化敏感性特征来进一步提升模型的去偏能力。`, disabled: false, area: { top: '34%', left: '15%', width: '70%', height: '3%' }, isExpanded: false, page: 1, confidence: 0.88 },
+    { id: 'text_detection_desc_1', type: 'text', content: `1. 检测依据:学校模板《广东工业大学硕士专业学位论文模板》;国家标准《GB7713 学位论文编写格式》,《GB7714参考文献著录规则》,《GB15834标点符号用法》,《GB15835出版物上数字用法》,《GB3100国际单位制及其应用》,《GB3101有关量单位符号的一般原则》,《GB3102空间和时间的量和单位》。\\n\\n本检测报告严格遵循上述国家标准和学校规定，确保检测过程的严谨性和结果的准确性。所有引用规则均经过最新修订，以适应当前学术规范的要求。检测范围涵盖了从论文结构、引用格式到标点符号使用等多个维度，旨在提供全面、细致的格式审查服务。\\n\\n我们致力于帮助学生和研究人员提升论文质量，符合各项出版和学术要求。`, disabled: false, area: { top: '55%', left: '10%', width: '80%', height: '15%' }, isExpanded: false, page: 1, confidence: 0.92 },
+    { id: 'table_qr_code_1', type: 'table', url: 'https://placehold.co/600x400/000000/FFFFFF?text=Table+1', imageDescription: '左上角表格，用于展示数据统计。', disabled: false, area: { top: '0%', left: '0%', width: '20%', height: '15%' }, page: 1, confidence: 0.78 },
+    { id: 'image_qr_code_2', type: 'image', url: 'https://placehold.co/150x150/000000/FFFFFF?text=QR+Code+2', imageDescription: `右上角二维码，用于微信客服。这个二维码是用户与客服团队进行便捷沟通的桥梁，通过扫描此码，用户可以快速进入客服对话界面，获取帮助、咨询问题或反馈意见。我们致力于提供高效、友好的客户服务体验，确保用户在使用过程中遇到的任何问题都能得到及时解决。此外，该二维码也可能用于推广最新的产品信息、服务更新或特别优惠活动，旨在增强用户粘性并拓展服务范围。我们鼓励所有用户积极利用此功能，以便我们能更好地为您服务，并持续优化我们的产品和体验。您的每一次反馈都对我们至关重要，帮助我们不断进步。`, disabled: false, area: { top: '0%', left: '80%', width: '20%', height: '15%' }, page: 1, confidence: 0.85 },
+    { id: 'text_detection_result', type: 'text', content: '检测结果: 全文页数 72, 字符统计 65979, 中文字符 31115, 非中文单词 3372, 问题总数 = 6, 万字差错率 0.90/10000, 结论 合格', disabled: false, area: { top: '80%', left: '10%', width: '80%', height: '10%' }, isExpanded: false, page: 1, confidence: 0.98 },
+    { id: 'text_page2_intro', type: 'text', content: '这是第二页的介绍内容，详细阐述了检测流程的初步阶段。', disabled: false, area: { top: '20%', left: '10%', width: '80%', height: '10%' }, isExpanded: false, page: 2, confidence: 0.87 },
+    { id: 'image_page2_flowchart', type: 'image', url: 'https://placehold.co/400x200/ADD8E6/FFFFFF?text=Flowchart', imageDescription: '第二页的流程图，展示了检测步骤。', disabled: false, area: { top: '40%', left: '15%', width: '70%', height: '30%' }, page: 2, confidence: 0.91 },
+    { id: 'text_page3_details', type: 'text', content: '第三页提供了具体的检测细节和数据分析方法，包括各种算法的运用和结果的解读。本页内容较为专业，旨在为技术人员提供深入的参考。', disabled: false, area: { top: '15%', left: '10%', width: '80%', height: '20%' }, isExpanded: false, page: 3, confidence: 0.84 },
+    { id: 'image_page3_graph', type: 'chart', url: 'https://placehold.co/400x250/90EE90/FFFFFF?text=Graph', imageDescription: '第三页的数据图表，显示了性能趋势。', disabled: false, area: { top: '40%', left: '20%', width: '60%', height: '40%' }, page: 3, confidence: 0.89 },
+    { id: 'text_page4_conclusion', type: 'text', content: '第四页是报告的结论部分，总结了本次检测的发现和建议，并对未来的研究方向提出了展望。', disabled: false, area: { top: '25%', left: '10%', width: '80%', height: '15%' }, isExpanded: false, page: 4, confidence: 0.93 },
+    { id: 'text_page5_appendix', type: 'text', content: '第五页是附录，包含了所有引用的参考文献列表和一些补充材料。', disabled: false, area: { top: '30%', left: '10%', width: '80%', height: '10%' }, isExpanded: false, page: 5, confidence: 0.76 },
+    { id: 'text_page1_extra1', type: 'text', content: '这是第一页的额外文本块1，用于填充内容以测试分页效果。', disabled: false, area: { top: '10%', left: '20%', width: '60%', height: '5%' }, isExpanded: false, page: 1, confidence: 0.82 },
+    { id: 'text_page1_extra2', type: 'text', content: '这是第一页的额外文本块2，用于填充内容以测试分页效果。', disabled: false, area: { top: '15%', left: '20%', width: '60%', height: '5%' }, isExpanded: false, page: 1, confidence: 0.79 },
+    { id: 'text_page1_extra3', type: 'text', content: '这是第一页的额外文本块3，用于填充内容以测试分页效果。', disabled: false, area: { top: '20%', left: '20%', width: '60%', height: '5%' }, isExpanded: false, page: 1, confidence: 0.86 },
+    { id: 'text_page2_extra1', type: 'text', content: '这是第二页的额外文本块1。', disabled: false, area: { top: '10%', left: '20%', width: '60%', height: '5%' }, isExpanded: false, page: 2, confidence: 0.73 },
+    { id: 'text_page2_extra2', type: 'text', content: '这是第二页的额外文本块2。', disabled: false, area: { top: '15%', left: '20%', width: '60%', height: '5%' }, isExpanded: false, page: 2, confidence: 0.88 },
+    { id: 'text_page3_extra1', type: 'text', content: '这是第三页的额外文本块1。', disabled: false, area: { top: '10%', left: '20%', width: '60%', height: '5%' }, isExpanded: false, page: 3, confidence: 0.90 },
 ];
 
 // 修改parsedBlocks中text_detection_desc_1，支持areas数组
@@ -75,14 +75,14 @@ let smartSearchLoading = false; // Renamed from loading
 let smartSearchHighlightedBlockId = null; // Renamed
 
 const smartSearchParsedBlocks = [ // Data specific to SmartSearch view
-    { id: 'text_title', type: 'text', content: '学位论文格式检测合格证明', area: { top: '10%', left: '20%', width: '60%', height: '5%' } },
-    { id: 'text_info_unit', type: 'text', content: '送检单位: 广东工业大学', area: { top: '25%', left: '15%', width: '70%', height: '3%' } },
-    { id: 'text_info_title', type: 'text', content: '论文题目: 基于语音辅助的多语言文本分类语言偏见去偏研究方佳俊', area: { top: '29%', left: '15%', width: '70%', height: '5%' } },
-    { id: 'text_info_author', type: 'text', content: '论文作者: 方佳俊 指导教师 阳爱民', area: { top: '34%', left: '15%', width: '70%', height: '3%' } },
-    { id: 'text_detection_desc_1', type: 'text', content: '1. 检测依据:学校模板《广东工业大学硕士专业学位论文模板》;国家标准《GB7713 学位论文编写格式》,《GB7714参考文献著录规则》', area: { top: '55%', left: '10%', width: '80%', height: '15%' } },
-    { id: 'table_qr_code_1', type: 'table', url: 'https://placehold.co/600x400/000000/FFFFFF?text=Table+1', imageDescription: '左上角表格，用于展示数据统计。', area: { top: '0%', left: '0%', width: '20%', height: '15%' } },
-    { id: 'image_qr_code_2', type: 'image', url: 'https://placehold.co/150x150/000000/FFFFFF?text=QR+Code+2', imageDescription: '右上角二维码，用于微信客服。', area: { top: '0%', left: '80%', width: '20%', height: '15%' } },
-    { id: 'text_detection_result', type: 'text', content: '检测结果: 全文页数 72, 字符统计 65979, 中文字符 31115, 非中文单词 3372, 问题总数 6, 万字差错率 0.90/10000, 结论 合格', area: { top: '80%', left: '10%', width: '80%', height: '10%' } },
+    { id: 'text_title', type: 'text', content: '学位论文格式检测合格证明', area: { top: '10%', left: '20%', width: '60%', height: '5%' }, confidence: 0.94 },
+    { id: 'text_info_unit', type: 'text', content: '送检单位: 广东工业大学', area: { top: '25%', left: '15%', width: '70%', height: '3%' }, confidence: 0.97 },
+    { id: 'text_info_title', type: 'text', content: '论文题目: 基于语音辅助的多语言文本分类语言偏见去偏研究方佳俊', area: { top: '29%', left: '15%', width: '70%', height: '5%' }, confidence: 0.95 },
+    { id: 'text_info_author', type: 'text', content: '论文作者: 方佳俊 指导教师 阳爱民', area: { top: '34%', left: '15%', width: '70%', height: '3%' }, confidence: 0.88 },
+    { id: 'text_detection_desc_1', type: 'text', content: '1. 检测依据:学校模板《广东工业大学硕士专业学位论文模板》;国家标准《GB7713 学位论文编写格式》,《GB7714参考文献著录规则》', area: { top: '55%', left: '10%', width: '80%', height: '15%' }, confidence: 0.92 },
+    { id: 'table_qr_code_1', type: 'table', url: 'https://placehold.co/600x400/000000/FFFFFF?text=Table+1', imageDescription: '左上角表格，用于展示数据统计。', area: { top: '0%', left: '0%', width: '20%', height: '15%' }, confidence: 0.78 },
+    { id: 'image_qr_code_2', type: 'image', url: 'https://placehold.co/150x150/000000/FFFFFF?text=QR+Code+2', imageDescription: '右上角二维码，用于微信客服。', area: { top: '0%', left: '80%', width: '20%', height: '15%' }, confidence: 0.85 },
+    { id: 'text_detection_result', type: 'text', content: '检测结果: 全文页数 72, 字符统计 65979, 中文字符 31115, 非中文单词 3372, 问题总数 6, 万字差错率 0.90/10000, 结论 合格', area: { top: '80%', left: '10%', width: '80%', height: '10%' }, confidence: 0.98 },
 ];
 const smartSearchHoverAreas = smartSearchParsedBlocks.map(block => ({
     id: block.id,
@@ -263,15 +263,32 @@ function renderDocumentParsingDetails() {
         const needsTruncationImageDesc = !isTextBlock && block.imageDescription && block.imageDescription.length > APPROX_LINE_CHAR_LIMIT;
         const isHighlighted = highlightedBlockId === block.id || hoveredOriginalArea === block.id;
 
+        // 置信度颜色和显示
+        const confidence = block.confidence || 0;
+        const confidencePercent = Math.round(confidence * 100);
+        let confidenceColor = 'bg-red-100 text-red-800'; // 低置信度 < 0.7
+        if (confidence >= 0.9) {
+            confidenceColor = 'bg-green-100 text-green-800'; // 高置信度 >= 0.9
+        } else if (confidence >= 0.8) {
+            confidenceColor = 'bg-yellow-100 text-yellow-800'; // 中等置信度 0.8-0.89
+        } else if (confidence >= 0.7) {
+            confidenceColor = 'bg-orange-100 text-orange-800'; // 中低置信度 0.7-0.79
+        }
+
         return `
             <div
                 id="block-${block.id}"
                 class="block-item p-4 rounded-lg border transition-all duration-300 cursor-pointer bg-white border-gray-200 min-w-0 box-border min-h-28 py-6 ${highlightedBlockId === block.id ? 'border-blue-500 ring-2 ring-blue-400 shadow-lg' : ''} ${block.disabled ? 'opacity-50 bg-gray-100' : ''}"
                 data-id="${block.id}">
                 <div class="flex justify-between items-start mb-2 min-w-0">
-                    <span class="px-2 py-0.5 rounded-full text-xs font-semibold ${isTitleBlock ? 'bg-red-100 text-red-800' : isCatalogBlock ? '' : isChartBlock ? 'bg-pink-100 text-pink-800' : isTextBlock ? 'bg-blue-100 text-blue-800' : block.type === 'table' ? 'bg-purple-100 text-purple-800' : block.type === 'image' ? 'bg-green-100 text-green-800' : ''}"${isCatalogBlock ? ' style="background:#FFEDD5;color:#C2410C;"' : ''}>
-                        ${isTitleBlock ? '标题' : isCatalogBlock ? '目录' : isChartBlock ? '图表' : isTextBlock ? '正文' : block.type === 'table' ? '表格' : block.type === 'image' ? '图片' : ''}
-                    </span>
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <span class="px-2 py-0.5 rounded-full text-xs font-semibold ${isTitleBlock ? 'bg-red-100 text-red-800' : isCatalogBlock ? '' : isChartBlock ? 'bg-pink-100 text-pink-800' : isTextBlock ? 'bg-blue-100 text-blue-800' : block.type === 'table' ? 'bg-purple-100 text-purple-800' : block.type === 'image' ? 'bg-green-100 text-green-800' : ''}"${isCatalogBlock ? ' style="background:#FFEDD5;color:#C2410C;"' : ''}>
+                            ${isTitleBlock ? '标题' : isCatalogBlock ? '目录' : isChartBlock ? '图表' : isTextBlock ? '正文' : block.type === 'table' ? '表格' : block.type === 'image' ? '图片' : ''}
+                        </span>
+                        <span class="px-2 py-0.5 rounded-full text-xs font-semibold ${confidenceColor}" title="置信度: ${confidencePercent}%">
+                            ${confidencePercent}%
+                        </span>
+                    </div>
                     <span class="text-xs font-semibold text-gray-500 ml-2">ID: ${block.id}</span>
                     <div class="flex space-x-3 items-center ml-auto">
                         <button class="delete-block-btn text-gray-500 hover:text-red-600" data-id="${block.id}" title="删除">
