@@ -266,14 +266,8 @@ function renderDocumentParsingDetails() {
         // 置信度颜色和显示
         const confidence = block.confidence || 0;
         const confidencePercent = Math.round(confidence * 100);
-        let confidenceColor = 'bg-red-100 text-red-800'; // 低置信度 < 0.7
-        if (confidence >= 0.9) {
-            confidenceColor = 'bg-green-100 text-green-800'; // 高置信度 >= 0.9
-        } else if (confidence >= 0.8) {
-            confidenceColor = 'bg-yellow-100 text-yellow-800'; // 中等置信度 0.8-0.89
-        } else if (confidence >= 0.7) {
-            confidenceColor = 'bg-orange-100 text-orange-800'; // 中低置信度 0.7-0.79
-        }
+        // 使用橙色背景，更显眼
+        const confidenceColor = 'bg-orange-500 text-white';
 
         return `
             <div
@@ -282,14 +276,16 @@ function renderDocumentParsingDetails() {
                 data-id="${block.id}">
                 <div class="flex justify-between items-start mb-2 min-w-0">
                     <div class="flex items-center gap-2 flex-wrap">
-                        <span class="px-2 py-0.5 rounded-full text-xs font-semibold ${isTitleBlock ? 'bg-red-100 text-red-800' : isCatalogBlock ? '' : isChartBlock ? 'bg-pink-100 text-pink-800' : isTextBlock ? 'bg-blue-100 text-blue-800' : block.type === 'table' ? 'bg-purple-100 text-purple-800' : block.type === 'image' ? 'bg-green-100 text-green-800' : ''}"${isCatalogBlock ? ' style="background:#FFEDD5;color:#C2410C;"' : ''}>
+                        <span class="px-2 py-0.5 rounded-full text-xs font-semibold ${isTitleBlock ? 'bg-red-50 text-red-600' : isCatalogBlock ? '' : isChartBlock ? 'bg-pink-50 text-pink-600' : isTextBlock ? 'bg-blue-50 text-blue-600' : block.type === 'table' ? 'bg-purple-50 text-purple-600' : block.type === 'image' ? 'bg-green-50 text-green-600' : ''}"${isCatalogBlock ? ' style="background:#FEF3E2;color:#B45309;"' : ''}>
                             ${isTitleBlock ? '标题' : isCatalogBlock ? '目录' : isChartBlock ? '图表' : isTextBlock ? '正文' : block.type === 'table' ? '表格' : block.type === 'image' ? '图片' : ''}
                         </span>
                         <span class="px-2 py-0.5 rounded-full text-xs font-semibold ${confidenceColor}" title="置信度: ${confidencePercent}%">
                             置信度：${confidencePercent}%
                         </span>
+                        <span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-gray-200 text-gray-600">
+                            ID: ${block.id}
+                        </span>
                     </div>
-                    <span class="text-xs font-semibold text-gray-500 ml-2">ID: ${block.id}</span>
                     <div class="flex space-x-3 items-center ml-auto">
                         <button class="delete-block-btn text-gray-500 hover:text-red-600" data-id="${block.id}" title="删除">
                             ${Icons.Trash2(18)}
