@@ -4,7 +4,7 @@
 let currentPage = 'parsingDetails'; // 'parsingDetails' or 'smartSearch'
 
 // --- State for DocumentParsingDetails ---
-let displayFilter = 'all'; // 'all', 'text', 'image'
+let displayFilter = ['all']; // 支持多选: ['all'], ['text', 'image'], etc.
 let highlightedBlockId = null;
 let hoveredOriginalArea = null;
 let hoveredBlockPreview = null;
@@ -31,7 +31,7 @@ let parsedBlocks = [
     { id: 'image_qr_code_2', type: 'image', url: 'https://placehold.co/150x150/000000/FFFFFF?text=QR+Code+2', imageDescription: `右上角二维码，用于微信客服。这个二维码是用户与客服团队进行便捷沟通的桥梁，通过扫描此码，用户可以快速进入客服对话界面，获取帮助、咨询问题或反馈意见。我们致力于提供高效、友好的客户服务体验，确保用户在使用过程中遇到的任何问题都能得到及时解决。此外，该二维码也可能用于推广最新的产品信息、服务更新或特别优惠活动，旨在增强用户粘性并拓展服务范围。我们鼓励所有用户积极利用此功能，以便我们能更好地为您服务，并持续优化我们的产品和体验。您的每一次反馈都对我们至关重要，帮助我们不断进步。`, disabled: false, area: { top: '0%', left: '80%', width: '20%', height: '15%' }, page: 1, confidence: 0.85 },
     { id: 'text_detection_result', type: 'text', content: '检测结果: 全文页数 72, 字符统计 65979, 中文字符 31115, 非中文单词 3372, 问题总数 = 6, 万字差错率 0.90/10000, 结论 合格', disabled: false, area: { top: '80%', left: '10%', width: '80%', height: '10%' }, isExpanded: false, page: 1, confidence: 0.98 },
     { id: 'text_page2_intro', type: 'text', content: '这是第二页的介绍内容，详细阐述了检测流程的初步阶段。', disabled: false, area: { top: '20%', left: '10%', width: '80%', height: '10%' }, isExpanded: false, page: 2, confidence: 0.87 },
-    { id: 'image_page2_flowchart', type: 'image', url: 'https://placehold.co/400x200/ADD8E6/FFFFFF?text=Flowchart', imageDescription: '第二页的流程图，展示了检测步骤。', disabled: false, area: { top: '40%', left: '15%', width: '70%', height: '30%' }, page: 2, confidence: 0.91 },
+    { id: 'image_page2_flowchart', type: 'chart', url: 'https://placehold.co/400x200/ADD8E6/FFFFFF?text=Flowchart', imageDescription: '第二页的流程图，展示了检测步骤。', disabled: false, area: { top: '40%', left: '15%', width: '70%', height: '30%' }, page: 2, confidence: 0.91 },
     { id: 'text_page3_details', type: 'text', content: '第三页提供了具体的检测细节和数据分析方法，包括各种算法的运用和结果的解读。本页内容较为专业，旨在为技术人员提供深入的参考。', disabled: false, area: { top: '15%', left: '10%', width: '80%', height: '20%' }, isExpanded: false, page: 3, confidence: 0.84 },
     { id: 'image_page3_graph', type: 'chart', url: 'https://placehold.co/400x250/90EE90/FFFFFF?text=Graph', imageDescription: '第三页的数据图表，显示了性能趋势。', disabled: false, area: { top: '40%', left: '20%', width: '60%', height: '40%' }, page: 3, confidence: 0.89 },
     { id: 'text_page4_conclusion', type: 'text', content: '第四页是报告的结论部分，总结了本次检测的发现和建议，并对未来的研究方向提出了展望。', disabled: false, area: { top: '25%', left: '10%', width: '80%', height: '15%' }, isExpanded: false, page: 4, confidence: 0.93 },
@@ -148,14 +148,14 @@ function renderApp() {
         </nav>
 
         <div class="flex-grow flex flex-col" style="height:calc(100vh - 56px);min-height:0;">
-            <div class="flex flex-row gap-6 mt-4 mb-4 px-4 md:px-0">
-                <div class="lg:w-1/3 flex items-center">
+            <div class="flex flex-row gap-6 mt-4 mb-4 px-6">
+                <div class="w-1/3 flex items-center">
                     <span class="flex items-center text-xl font-bold text-gray-900">
                         <span class="inline-block w-2 h-6 bg-blue-500 rounded mr-3"></span>
                         原文件
                         </span>
                     </div>
-                <div class="lg:w-2/3 flex items-center justify-between">
+                <div class="w-2/3 flex items-center justify-between">
                     <span class="flex items-center text-xl font-bold text-gray-900">
                         <span class="inline-block w-2 h-6 bg-blue-500 rounded mr-3"></span>
                         处理结果
@@ -201,35 +201,8 @@ function renderDocumentParsingDetails() {
     // console.log("Rendering DocumentParsingDetails component");
     // Helper functions for DocumentParsingDetails
     const getFilteredBlocksForPagination = () => {
-        let filtered = parsedBlocks;
-        if (displayFilter === 'text') {
-            filtered = filtered.filter(block => block.type === 'text' && block.id !== 'text_info_title' && block.id !== 'text_info_author');
-        } else if (displayFilter === 'image') {
-            filtered = filtered.filter(block => block.type === 'image');
-        } else if (displayFilter === 'table') {
-            filtered = filtered.filter(block => block.type === 'table');
-        } else if (displayFilter === 'title') {
-            filtered = filtered.filter(block => block.type === 'title');
-        } else if (displayFilter === 'catalog') {
-            filtered = filtered.filter(block => block.type === 'catlog');
-        }
-        if (searchTextQuery) {
-            const lowerCaseText = searchTextQuery.toLowerCase();
-            filtered = filtered.filter(block =>
-                (block.type === 'text' && block.content.toLowerCase().includes(lowerCaseText)) ||
-                (block.type === 'image' && block.imageDescription && block.imageDescription.toLowerCase().includes(lowerCaseText)) ||
-                (block.type === 'table' && block.content && block.content.toLowerCase().includes(lowerCaseText)) ||
-                (block.type === 'title' && block.content && block.content.toLowerCase().includes(lowerCaseText)) ||
-                (block.type === 'catalog' && block.content && block.content.toLowerCase().includes(lowerCaseText))
-            );
-        }
-        // 将 QR Code1 和 QR Code2 提到最前面
-        const qrOrder = ['image_qr_code_1', 'image_qr_code_2'];
-        filtered = [
-            ...filtered.filter(b => qrOrder.includes(b.id)),
-            ...filtered.filter(b => !qrOrder.includes(b.id))
-        ];
-        return filtered;
+        // 使用全局的getFilteredBlocksForPagination函数
+        return window.getFilteredBlocksForPagination();
     };
 
     const getTotalParsedBlocksPages = () => {
@@ -266,8 +239,8 @@ function renderDocumentParsingDetails() {
         // 置信度颜色和显示
         const confidence = block.confidence || 0;
         const confidencePercent = Math.round(confidence * 100);
-        // 使用橙色背景，更显眼
-        const confidenceColor = 'bg-orange-500 text-white';
+        // 改为深蓝色背景白色文字
+        const confidenceColor = 'bg-blue-600 text-white';
 
         return `
             <div
@@ -276,20 +249,22 @@ function renderDocumentParsingDetails() {
                 data-id="${block.id}">
                 <div class="flex justify-between items-start mb-2 min-w-0">
                     <div class="flex items-center gap-2 flex-wrap">
-                        <span class="px-2 py-0.5 rounded-full text-xs font-semibold ${isTitleBlock ? 'bg-red-50 text-red-600' : isCatalogBlock ? '' : isChartBlock ? 'bg-pink-50 text-pink-600' : isTextBlock ? 'bg-blue-50 text-blue-600' : block.type === 'table' ? 'bg-purple-50 text-purple-600' : block.type === 'image' ? 'bg-green-50 text-green-600' : ''}"${isCatalogBlock ? ' style="background:#FEF3E2;color:#B45309;"' : ''}>
-                            ${isTitleBlock ? '标题' : isCatalogBlock ? '目录' : isChartBlock ? '图表' : isTextBlock ? '正文' : block.type === 'table' ? '表格' : block.type === 'image' ? '图片' : ''}
-                        </span>
+                    <span class="px-2 py-0.5 rounded-full text-xs font-semibold ${isTitleBlock ? 'bg-red-100 text-red-800' : isCatalogBlock ? '' : isChartBlock ? 'bg-pink-100 text-pink-800' : isTextBlock ? 'bg-blue-100 text-blue-800' : block.type === 'table' ? 'bg-purple-100 text-purple-800' : block.type === 'image' ? 'bg-green-100 text-green-800' : ''}"${isCatalogBlock ? ' style="background:#FFEDD5;color:#C2410C;"' : ''}>
+                        ${isTitleBlock ? '标题' : isCatalogBlock ? '目录' : isChartBlock ? '图表' : isTextBlock ? '正文' : block.type === 'table' ? '表格' : block.type === 'image' ? '图片' : ''}
+                    </span>
                         <span class="px-2 py-0.5 rounded-full text-xs font-semibold ${confidenceColor}" title="置信度: ${confidencePercent}%">
                             置信度：${confidencePercent}%
                         </span>
-                        <span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-gray-200 text-gray-600">
+                        <span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-gray-100 text-gray-800">
                             ID: ${block.id}
                         </span>
                     </div>
                     <div class="flex space-x-3 items-center ml-auto">
+                        <!-- 删除按钮已隐藏
                         <button class="delete-block-btn text-gray-500 hover:text-red-600" data-id="${block.id}" title="删除">
                             ${Icons.Trash2(18)}
                         </button>
+                        -->
                         <div class="toggle-disable-btn cursor-pointer" data-id="${block.id}" title="${block.disabled ? '启用' : '禁用'}">
                             ${block.disabled ? Icons.ToggleLeft(24) : Icons.ToggleRight(24)}
                         </div>
@@ -335,12 +310,13 @@ function renderDocumentParsingDetails() {
     };
 
     const currentBlocksToDisplay = getBlocksForCurrentParsedPage();
+    const allFilteredBlocks = getFilteredBlocksForPagination(); // 获取所有筛选后的分块，用于左侧PDF显示
     const totalParsedPages = getTotalParsedBlocksPages();
     const totalFilteredCount = getTotalFilteredBlocksCount();
 
     const html = `
-        <div class="flex flex-row h-full min-h-0">
-            <div class="lg:w-1/3 bg-white rounded-xl shadow-lg flex flex-col relative overflow-hidden h-full min-h-0">
+        <div class="flex flex-row h-full min-h-0 px-6 gap-6">
+            <div class="w-1/3 bg-white rounded-xl shadow-lg flex flex-col relative overflow-hidden h-full min-h-0">
                 <div class="flex flex-col gap-2 mb-2 px-6 pt-6">
                   <div class="flex items-center gap-4 w-full">
                     <div class="flex items-center min-w-0 flex-1">
@@ -351,6 +327,12 @@ function renderDocumentParsingDetails() {
                       <span class="inline-block px-2 py-0.5 rounded bg-blue-100 text-blue-700 text-xs font-semibold">分支</span>
                       <span class="text-sm text-gray-700 font-medium ml-2 truncate">main</span>
                         </div>
+                </div>
+                  <div class="flex items-center gap-2">
+                    <span class="inline-block px-2 py-0.5 rounded bg-purple-100 text-purple-700 text-xs font-semibold">Job</span>
+                    <button id="job-link-btn" class="text-sm text-blue-600 font-medium hover:text-blue-800 hover:underline cursor-pointer transition-colors">
+                      document-parsing-job-001
+                    </button>
                 </div>
                   <div class="flex items-center gap-2">
                     <span class="inline-block px-2 py-0.5 rounded bg-green-100 text-green-700 text-xs font-semibold">文件</span>
@@ -371,19 +353,49 @@ function renderDocumentParsingDetails() {
                                 <div class="absolute left-2 top-2 bg-black bg-opacity-40 text-white text-xs px-2 py-0.5 rounded">
                                     ${pageNum}/${originalFileTotalPages}
             </div>
-                                ${highlightedBlockId ? (() => {
-                                    const block = parsedBlocks.find(b => b.id === highlightedBlockId);
-                                    if (!block) return '';
-                                    if (block.areas) {
-                                        return block.areas.filter(a => a.page === pageNum).map(area =>
-                                            `<div class="absolute bg-blue-500 opacity-30 border-2 border-blue-700 rounded-md animate-pulse pdf-highlight-area" style="top: ${area.top}; left: ${area.left}; width: ${area.width}; height: ${area.height}; pointer-events:auto;" data-block-id="${block.id}"></div>`
-                                        ).join('');
-                                    } else if (block.area && block.page === pageNum) {
-                                        const area = block.area;
-                                        return `<div class="absolute bg-blue-500 opacity-30 border-2 border-blue-700 rounded-md animate-pulse pdf-highlight-area" style="top: ${area.top}; left: ${area.left}; width: ${area.width}; height: ${area.height}; pointer-events:auto;" data-block-id="${block.id}"></div>`;
-                                    }
-                                    return '';
-                                })() : ''}
+                                
+                                <!-- 只显示当前右边显示的分块边框 -->
+                                ${allFilteredBlocks.map(block => {
+                                    const areas = block.areas ? block.areas.filter(area => area.page === pageNum) : 
+                                                 (block.page === pageNum ? [block.area] : []);
+                                    
+                                    return areas.map(area => {
+                                        const isClickHighlighted = highlightedBlockId === block.id;
+                                        const isHoverHighlighted = hoveredOriginalArea === block.id;
+                                        let highlightClass;
+                                        
+                                        if (block.disabled) {
+                                            // 禁用状态：灰色背景和虚线边框
+                                            if (isClickHighlighted) {
+                                                // 点击高亮：深灰色
+                                                highlightClass = 'bg-gray-600 opacity-70 border-2 border-gray-800 border-dashed animate-pulse';
+                                            } else if (isHoverHighlighted) {
+                                                // 悬浮高亮：中等灰色
+                                                highlightClass = 'bg-gray-400 opacity-60 border-2 border-gray-600 border-dashed';
+                                            } else {
+                                                // 普通状态
+                                                highlightClass = 'bg-gray-300 opacity-50 border-2 border-gray-500 border-dashed';
+                                            }
+                                        } else {
+                                            // 正常状态：蓝色背景和实线边框
+                                            if (isClickHighlighted) {
+                                                // 点击高亮：深蓝色
+                                                highlightClass = 'bg-blue-600 opacity-50 border-2 border-blue-800 animate-pulse';
+                                            } else if (isHoverHighlighted) {
+                                                // 悬浮高亮：中等蓝色
+                                                highlightClass = 'bg-blue-400 opacity-40 border-2 border-blue-600';
+                                            } else {
+                                                // 普通状态
+                                                highlightClass = 'bg-blue-100 opacity-30 border-2 border-blue-500';
+                                            }
+                                        }
+                                        
+                                        return `<div class="absolute ${highlightClass} rounded-md pdf-block-area" 
+                                                     style="top: ${area.top}; left: ${area.left}; width: ${area.width}; height: ${area.height}; pointer-events:auto;" 
+                                                     data-block-id="${block.id}">
+                                                </div>`;
+                                    }).join('');
+                                }).join('')}
                     </div>
                             `;
                         }).join('')}
@@ -391,7 +403,7 @@ function renderDocumentParsingDetails() {
                   </div>
                 </div>
             </div>
-            <div class="lg:w-2/3 bg-white rounded-xl shadow-lg py-1 px-4 flex flex-col h-full min-h-0 flex-grow min-w-0 box-border" style="box-sizing:border-box; max-width:1200px; margin-left:24px; margin-right:24px;">
+            <div class="w-2/3 bg-white rounded-xl shadow-lg py-1 px-4 flex flex-col h-full min-h-0 flex-grow min-w-0 box-border">
                 <div class="flex flex-col sm:flex-row justify-between items-center mb-4 space-y-2 sm:space-y-0 sm:space-x-4 min-w-0 mt-4">
                     <div class="mb-4">
                       <div class="w-full flex justify-between items-center gap-2 mb-0">
@@ -404,32 +416,37 @@ function renderDocumentParsingDetails() {
                           </div>
                         </div>
                         <div class="flex space-x-2 flex-shrink-0 ml-2">
+                          ${!displayFilter.includes('all') && displayFilter.length > 0 ? `
+                            <div class="flex items-center px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full">
+                              已选 ${displayFilter.length} 项
+                            </div>
+                          ` : ''}
                           <button id="dpd-filter-all" class="px-3 py-1 rounded-full text-sm font-medium transition-colors duration-200 
-                            ${displayFilter === 'all' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}">
+                            ${displayFilter.includes('all') ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}">
                             全部
                         </button>
                           <button id="dpd-filter-title" class="px-3 py-1 rounded-full text-sm font-medium transition-colors duration-200 
-                              ${displayFilter === 'title' ? 'bg-red-100 text-red-800' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}">
+                              ${displayFilter.includes('title') ? 'bg-red-100 text-red-800' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}">
                               标题
                         </button>
                           <button id="dpd-filter-catalog" class="px-3 py-1 rounded-full text-sm font-medium transition-colors duration-200 
-                              ${displayFilter === 'catalog' ? 'bg-orange-100 text-orange-800' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}" style="${displayFilter === 'catalog' ? 'background:#FFEDD5;color:#C2410C;' : ''}">
+                              ${displayFilter.includes('catalog') ? 'bg-orange-100 text-orange-800' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}" style="${displayFilter.includes('catalog') ? 'background:#FFEDD5;color:#C2410C;' : ''}">
                               目录
                           </button>
                           <button id="dpd-filter-text" class="px-3 py-1 rounded-full text-sm font-medium transition-colors duration-200 
-                              ${displayFilter === 'text' ? 'bg-blue-100 text-blue-800' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}">
+                              ${displayFilter.includes('text') ? 'bg-blue-100 text-blue-800' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}">
                               正文
                           </button>
                           <button id="dpd-filter-image" class="px-3 py-1 rounded-full text-sm font-medium transition-colors duration-200 
-                              ${displayFilter === 'image' ? 'bg-green-100 text-green-800' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}
+                              ${displayFilter.includes('image') ? 'bg-green-100 text-green-800' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}">
                             图片
                         </button>
                           <button id="dpd-filter-table" class="px-3 py-1 rounded-full text-sm font-medium transition-colors duration-200 
-                              ${displayFilter === 'table' ? 'bg-purple-100 text-purple-800' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}">
+                              ${displayFilter.includes('table') ? 'bg-purple-100 text-purple-800' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}">
                               表格
                           </button>
                           <button id="dpd-filter-chart" class="px-3 py-1 rounded-full text-sm font-medium transition-colors duration-200 
-                              ${displayFilter === 'chart' ? 'bg-pink-100 text-pink-800' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}">
+                              ${displayFilter.includes('chart') ? 'bg-pink-100 text-pink-800' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}">
                               图表
                           </button>
                         </div>
@@ -485,10 +502,28 @@ function attachDocumentParsingDetailsListeners() {
     // Left Panel: Original Document Preview
     const previewList = document.getElementById('original-doc-preview-list');
     if (previewList) {
+        // 使用事件委托处理PDF分块点击
+        previewList.addEventListener('click', (e) => {
+            const pdfBlockArea = e.target.closest('.pdf-block-area');
+            if (pdfBlockArea) {
+                console.log('PDF area clicked via delegation!'); // 调试信息
+                e.stopPropagation();
+                const blockId = pdfBlockArea.getAttribute('data-block-id');
+                console.log('Clicked block ID via delegation:', blockId); // 调试信息
+                handleLeftPdfBlockClick(blockId);
+            }
+        });
+
+        // 添加标志位，防止恢复滚动位置时触发滚动事件的重新渲染
+        let isRestoringScroll = false;
+
         // 移除点击事件，不再允许点击页面切换高亮
         // previewList.addEventListener('click', ...); // 注释或删除
         // 滚动时自动同步当前页
         previewList.addEventListener('scroll', () => {
+            // 如果正在恢复滚动位置，则不处理滚动事件
+            if (isRestoringScroll) return;
+            
             const imgs = Array.from(previewList.querySelectorAll('img[data-page]'));
             let minDiff = Infinity;
             let current = 1;
@@ -506,6 +541,86 @@ function attachDocumentParsingDetailsListeners() {
                 parsedBlocksCurrentPage = 1;
                 expandedBlockId = null; // Reset expanded block when changing doc page
                 renderApp();
+            }
+        });
+
+        // 添加鼠标移动事件，检测是否悬停在分块区域上
+        previewList.addEventListener('mousemove', (e) => {
+            const currentPageImgs = previewList.querySelectorAll('img[data-page]');
+            let foundBlock = null;
+            
+            currentPageImgs.forEach(img => {
+                const pageNum = parseInt(img.dataset.page);
+                const imgRect = img.getBoundingClientRect();
+                const previewRect = previewList.getBoundingClientRect();
+                
+                // 计算鼠标在图片内的相对位置（百分比）
+                const relativeX = ((e.clientX - imgRect.left) / imgRect.width) * 100;
+                const relativeY = ((e.clientY - imgRect.top) / imgRect.height) * 100;
+                
+                // 检查当前页面的所有分块
+                parsedBlocks.forEach(block => {
+                    if (block.page === pageNum || (block.areas && block.areas.some(area => area.page === pageNum))) {
+                        const areas = block.areas || [{ ...block.area, page: block.page }];
+                        
+                        areas.forEach(area => {
+                            if (area.page === pageNum) {
+                                const areaLeft = parseFloat(area.left);
+                                const areaTop = parseFloat(area.top);
+                                const areaWidth = parseFloat(area.width);
+                                const areaHeight = parseFloat(area.height);
+                                
+                                // 检查鼠标是否在当前分块区域内
+                                if (relativeX >= areaLeft && relativeX <= areaLeft + areaWidth &&
+                                    relativeY >= areaTop && relativeY <= areaTop + areaHeight) {
+                                    foundBlock = block.id;
+                                }
+                            }
+                        });
+                    }
+                });
+            });
+            
+            // 如果找到了新的分块，更新高亮
+            if (foundBlock !== hoveredOriginalArea) {
+                hoveredOriginalArea = foundBlock;
+                // 保存当前滚动位置
+                const scrollTop = previewList.scrollTop;
+                renderApp();
+                // 重新渲染后恢复滚动位置
+                setTimeout(() => {
+                    const newPreviewList = document.getElementById('original-doc-preview-list');
+                    if (newPreviewList) {
+                        isRestoringScroll = true;
+                        newPreviewList.scrollTop = scrollTop;
+                        // 短暂延迟后重置标志位
+                        setTimeout(() => {
+                            isRestoringScroll = false;
+                        }, 50);
+                    }
+                }, 0);
+            }
+        });
+
+        // 鼠标离开预览区域时清除高亮
+        previewList.addEventListener('mouseleave', () => {
+            if (hoveredOriginalArea) {
+                hoveredOriginalArea = null;
+                // 保存当前滚动位置
+                const scrollTop = previewList.scrollTop;
+                renderApp();
+                // 重新渲染后恢复滚动位置
+                setTimeout(() => {
+                    const newPreviewList = document.getElementById('original-doc-preview-list');
+                    if (newPreviewList) {
+                        isRestoringScroll = true;
+                        newPreviewList.scrollTop = scrollTop;
+                        // 短暂延迟后重置标志位
+                        setTimeout(() => {
+                            isRestoringScroll = false;
+                        }, 50);
+                    }
+                }, 0);
             }
         });
     }
@@ -565,7 +680,30 @@ function attachDocumentParsingDetailsListeners() {
     document.getElementById('dpd-filter-chart')?.addEventListener('click', () => { setDisplayFilterAndRefresh('chart'); });
 
     function setDisplayFilterAndRefresh(filter) {
-        displayFilter = filter;
+        if (filter === 'all') {
+            // 点击"全部"时，清除其他所有筛选
+            displayFilter = ['all'];
+        } else {
+            // 点击具体筛选项时
+            if (displayFilter.includes('all')) {
+                // 如果当前包含"全部"，则移除"全部"并添加当前筛选
+                displayFilter = [filter];
+            } else {
+                // 如果当前不包含"全部"
+                if (displayFilter.includes(filter)) {
+                    // 如果已经包含该筛选，则移除它
+                    displayFilter = displayFilter.filter(f => f !== filter);
+                    // 如果移除后为空，则设置为"全部"
+                    if (displayFilter.length === 0) {
+                        displayFilter = ['all'];
+                    }
+                } else {
+                    // 如果不包含该筛选，则添加它
+                    displayFilter = [...displayFilter, filter];
+                }
+            }
+        }
+        
         parsedBlocksCurrentPage = 1; // Reset to first page on filter change
         expandedBlockId = null; // Reset expanded block
         renderApp();
@@ -663,22 +801,42 @@ function attachDocumentParsingDetailsListeners() {
       // 先移除所有旧的tooltip，避免残留
       document.querySelectorAll('#pdf-block-tooltip').forEach(tip => tip.remove());
       const previewList = document.getElementById('original-doc-preview-list');
+      console.log('Looking for preview list:', !!previewList); // 调试信息
       if (previewList) {
-        previewList.querySelectorAll('.pdf-highlight-area').forEach(area => {
+        const pdfBlockAreas = previewList.querySelectorAll('.pdf-block-area');
+        console.log('Found pdf-block-area elements:', pdfBlockAreas.length); // 调试信息
+        pdfBlockAreas.forEach(area => {
+          console.log('Adding tooltip listener to:', area.getAttribute('data-block-id')); // 调试信息
+          // 鼠标悬浮显示tooltip
           area.addEventListener('mouseenter', (e) => {
             const blockId = area.getAttribute('data-block-id');
-            console.log('mouseenter', blockId); // 调试用
+            console.log('mouseenter triggered for:', blockId); // 调试用
             const block = parsedBlocks.find(b => b.id === blockId);
-            if (!block) return;
+            if (!block) {
+              console.log('Block not found for ID:', blockId);
+              return;
+            }
+            console.log('Creating tooltip for block:', blockId);
             let tooltip = document.createElement('div');
             tooltip.className = 'preview-tooltip';
             tooltip.id = 'pdf-block-tooltip';
+            tooltip.style.position = 'fixed';
             tooltip.style.zIndex = '9999';
+            tooltip.style.padding = '12px';
+            tooltip.style.borderRadius = '8px';
+            tooltip.style.maxWidth = '300px';
             tooltip.style.border = '1px solid #2563eb';
             tooltip.style.boxShadow = '0 4px 16px 0 rgba(37,99,235,0.15)';
             tooltip.style.background = '#2D3748';
-            tooltip.innerHTML = block.type === 'text' ? escapeHTML(block.content).slice(0, 300) : `<img src='${block.url}' style='max-width:180px;max-height:120px;border-radius:8px;'><div class='mt-1 text-xs text-gray-200'>${escapeHTML(block.imageDescription||'')}</div>`;
+            tooltip.innerHTML = `
+              ${block.type === 'text' ? 
+                `<div style='color:#f7fafc;font-size:14px;line-height:1.4;'>${escapeHTML(block.content).slice(0, 300)}</div>` : 
+                `<img src='${block.url}' style='max-width:180px;max-height:120px;border-radius:8px;'><div class='mt-1 text-xs text-gray-200'>${escapeHTML(block.imageDescription||'')}</div>`
+              }
+              <div style='margin-top:8px;color:#a0aec0;font-size:12px;'>点击前往对应分块</div>
+            `;
             document.body.appendChild(tooltip);
+            console.log('Tooltip added to body');
             const moveHandler = (ev) => {
               tooltip.style.left = (ev.clientX + 16) + 'px';
               tooltip.style.top = (ev.clientY + 16) + 'px';
@@ -687,14 +845,19 @@ function attachDocumentParsingDetailsListeners() {
             area.addEventListener('mousemove', moveHandler);
             area._moveHandler = moveHandler;
           });
+          
           area.addEventListener('mouseleave', (e) => {
+            console.log('mouseleave triggered');
             const tooltip = document.getElementById('pdf-block-tooltip');
-            if (tooltip) tooltip.remove();
+            if (tooltip) {
+              console.log('Removing tooltip');
+              tooltip.remove();
+            }
             if (area._moveHandler) area.removeEventListener('mousemove', area._moveHandler);
           });
         });
       }
-    }, 0);
+    }, 300); // 增加延迟时间
 
     // 在attachDocumentParsingDetailsListeners中加导出按钮事件
     const exportBtn = document.getElementById('export-btn');
@@ -703,33 +866,65 @@ function attachDocumentParsingDetailsListeners() {
         alert('导出功能开发中');
       });
     }
+
+    // 添加Job按钮点击事件
+    const jobLinkBtn = document.getElementById('job-link-btn');
+    if (jobLinkBtn) {
+      jobLinkBtn.addEventListener('click', () => {
+        alert('跳转到Job详情页面: document-parsing-job-001');
+        // 这里可以添加实际的跳转逻辑，比如：
+        // window.open('/jobs/document-parsing-job-001', '_blank');
+      });
+    }
 }
 
 // --- Helper functions for DocumentParsingDetails logic ---
 function handleDeleteClick(id) {
     blockToDeleteId = id;
     // Use the global showConfirmationModal function
-    showConfirmationModal("您确定要删除此分块吗？此操作不可撤销。", confirmDelete, cancelDelete);
+    showConfirmationModal("您确定要删除此分块吗？此操作不可撤销。", confirmDelete, cancelDelete, "确认删除");
 }
 
 function confirmDelete() {
     parsedBlocks = parsedBlocks.filter(block => block.id !== blockToDeleteId);
     blockToDeleteId = null;
     if (expandedBlockId === blockToDeleteId) expandedBlockId = null; // Clear expansion if deleted
-    renderApp(); // Re-render the UI
+    // 移除这里的renderApp()调用，因为closeConfirmationModal()会调用
 }
 
 function cancelDelete() {
     blockToDeleteId = null;
     // Modal is closed by showConfirmationModal's internal logic
-    renderApp(); // Just in case, to ensure UI consistency if needed
+    // 移除这里的renderApp()调用，因为closeConfirmationModal()会调用
 }
 
 function handleToggleDisable(id) {
+    const block = parsedBlocks.find(b => b.id === id);
+    if (!block) return;
+    
+    // 如果当前是启用状态，要禁用时，弹出确认框
+    if (!block.disabled) {
+        showConfirmationModal(
+            "禁用后的分块将不会包含在下载的文件中，也不会在智能检索中被检索。您确定要禁用此分块吗？",
+            () => {
+                // 确认禁用
+                parsedBlocks = parsedBlocks.map(b =>
+                    b.id === id ? { ...b, disabled: true } : b
+                );
+                // 移除这里的renderApp()调用，因为closeConfirmationModal()会调用
+            },
+            () => {
+                // 取消操作，不做任何事情
+            },
+            "确认禁用"
+        );
+    } else {
+        // 如果当前是禁用状态，要启用时，直接启用
     parsedBlocks = parsedBlocks.map(block =>
-        block.id === id ? { ...block, disabled: !block.disabled } : block
+            block.id === id ? { ...block, disabled: false } : block
     );
     renderApp();
+    }
 }
 
 function handleToggleExpand(id) {
@@ -788,6 +983,14 @@ function openDetailViewModal(content, type) {
 // This function is ALREADY DEFINED GLOBALLY: closeDetailViewModal
 
 function handleBlockSelect(id) {
+    // 如果点击的是当前已经高亮的分块，则取消高亮
+    if (highlightedBlockId === id) {
+        highlightedBlockId = null;
+        renderApp();
+        return;
+    }
+    
+    // 否则高亮新的分块
     highlightedBlockId = id;
     const areaToScroll = hoverAreas.find(area => area.id === id);
     if (areaToScroll) {
@@ -802,8 +1005,126 @@ function handleBlockSelect(id) {
                 }
             }
         }, 100);
+    } else {
+        // 如果没有找到对应的区域，仅重新渲染
+        renderApp();
     }
 }
+
+// 处理左边PDF分块点击事件
+function handleLeftPdfBlockClick(blockId) {
+    console.log('handleLeftPdfBlockClick called with blockId:', blockId); // 调试信息
+    
+    // 如果点击的是当前已经高亮的分块，则取消高亮
+    if (highlightedBlockId === blockId) {
+        console.log('Canceling highlight for block:', blockId); // 调试信息
+        highlightedBlockId = null;
+        renderApp();
+        return;
+    }
+    
+    // 否则高亮选中的分块
+    highlightedBlockId = blockId;
+    
+    // 计算该分块在右边应该显示在第几页
+    const filteredBlocks = getFilteredBlocksForPagination();
+    const blockIndex = filteredBlocks.findIndex(block => block.id === blockId);
+    
+    console.log('Filtered blocks:', filteredBlocks.length, 'Block index:', blockIndex); // 调试信息
+    
+    if (blockIndex !== -1) {
+        // 计算目标页码
+        const targetPage = Math.ceil((blockIndex + 1) / blocksPerPage);
+        console.log('Target page:', targetPage, 'Current page:', parsedBlocksCurrentPage); // 调试信息
+        parsedBlocksCurrentPage = targetPage;
+        
+        // 清除展开状态
+        expandedBlockId = null;
+        
+        // 重新渲染
+        renderApp();
+        
+        // 滚动到右边对应的分块
+        setTimeout(() => {
+            const rightBlockElement = document.getElementById(`block-${blockId}`);
+            console.log('Right block element found:', !!rightBlockElement); // 调试信息
+            if (rightBlockElement) {
+                rightBlockElement.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'center' 
+                });
+                
+                // 添加临时高亮效果
+                rightBlockElement.style.transition = 'background-color 0.3s ease';
+                rightBlockElement.style.backgroundColor = '#dbeafe';
+                setTimeout(() => {
+                    rightBlockElement.style.backgroundColor = '';
+                    setTimeout(() => {
+                        rightBlockElement.style.transition = '';
+                    }, 300);
+                }, 600);
+            }
+        }, 100);
+    } else {
+        console.log('Block not found in filtered blocks, only highlighting left side'); // 调试信息
+        // 如果分块不在当前筛选结果中，仅高亮左边
+        renderApp();
+    }
+}
+
+// 获取筛选后的分块列表（需要从renderDocumentParsingDetails中提取出来）
+function getFilteredBlocksForPagination() {
+    let filtered = parsedBlocks;
+    
+    // 如果包含'all'，显示所有内容
+    if (!displayFilter.includes('all') && displayFilter.length > 0) {
+        filtered = parsedBlocks.filter(block => {
+            // 检查是否符合任何一个筛选条件（OR逻辑）
+            if (displayFilter.includes('text') && block.type === 'text' && block.id !== 'text_info_title' && block.id !== 'text_info_author') {
+                return true;
+            }
+            if (displayFilter.includes('image') && block.type === 'image') {
+                return true;
+            }
+            if (displayFilter.includes('table') && block.type === 'table') {
+                return true;
+            }
+            if (displayFilter.includes('title') && block.type === 'title') {
+                return true;
+            }
+            if (displayFilter.includes('catalog') && block.type === 'catlog') {
+                return true;
+            }
+            if (displayFilter.includes('chart') && block.type === 'chart') {
+                return true;
+            }
+            return false;
+        });
+    }
+    
+    if (searchTextQuery) {
+        const lowerCaseText = searchTextQuery.toLowerCase();
+        filtered = filtered.filter(block =>
+            (block.type === 'text' && block.content.toLowerCase().includes(lowerCaseText)) ||
+            (block.type === 'image' && block.imageDescription && block.imageDescription.toLowerCase().includes(lowerCaseText)) ||
+            (block.type === 'table' && block.content && block.content.toLowerCase().includes(lowerCaseText)) ||
+            (block.type === 'title' && block.content && block.content.toLowerCase().includes(lowerCaseText)) ||
+            (block.type === 'catalog' && block.content && block.content.toLowerCase().includes(lowerCaseText)) ||
+            (block.type === 'chart' && block.imageDescription && block.imageDescription.toLowerCase().includes(lowerCaseText))
+        );
+    }
+    
+    // 将 QR Code1 和 QR Code2 提到最前面
+    const qrOrder = ['table_qr_code_1', 'image_qr_code_2'];
+    filtered = [
+        ...filtered.filter(b => qrOrder.includes(b.id)),
+        ...filtered.filter(b => !qrOrder.includes(b.id))
+    ];
+    return filtered;
+}
+
+// 挂载到window对象上，供renderDocumentParsingDetails使用
+window.getFilteredBlocksForPagination = getFilteredBlocksForPagination;
 
 function renderSmartSearch() {
     // console.log("Rendering SmartSearch component");
@@ -1022,12 +1343,13 @@ function attachSmartSearchListeners() {
 // --- Modal Rendering and Logic (stubs for now, will be internal) ---
 // The actual modal rendering will inject into #modal-container
 // Public functions to trigger modals:
-function showConfirmationModal(message, onConfirmCallback, onCancelCallback) {
+function showConfirmationModal(message, onConfirmCallback, onCancelCallback, confirmButtonText = "确认") {
     showConfirmModalState = true;
     // Store callbacks and message to be used by renderConfirmationModalInternal
     window._modalConfirmCallback = onConfirmCallback;
     window._modalCancelCallback = onCancelCallback;
     window._modalMessage = message;
+    window._modalConfirmButtonText = confirmButtonText;
     renderApp(); // Re-render to show modal
 }
 
@@ -1055,6 +1377,7 @@ function renderConfirmationModalInternal() {
         return;
     }
     const message = window._modalMessage || "您确定吗?";
+    const confirmButtonText = window._modalConfirmButtonText || "确认";
     const modalHTML = `
     <div class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
       <div class="bg-white rounded-xl shadow-lg p-6 w-96 max-w-full">
@@ -1069,8 +1392,8 @@ function renderConfirmationModalInternal() {
           <button id="modal-cancel-btn" class="px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors">
             取消
           </button>
-          <button id="modal-confirm-btn" class="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors">
-            确认删除
+          <button id="modal-confirm-btn" class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors">
+            ${confirmButtonText}
           </button>
         </div>
       </div>
