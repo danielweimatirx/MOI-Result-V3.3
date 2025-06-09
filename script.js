@@ -286,7 +286,7 @@ function renderDocumentParsingDetails() {
                             ${isTitleBlock ? '标题' : isCatalogBlock ? '目录' : isChartBlock ? '图表' : isTextBlock ? '正文' : block.type === 'table' ? '表格' : block.type === 'image' ? '图片' : ''}
                         </span>
                         <span class="px-2 py-0.5 rounded-full text-xs font-semibold ${confidenceColor}" title="置信度: ${confidencePercent}%">
-                            ${confidencePercent}%
+                            置信度：${confidencePercent}%
                         </span>
                     </div>
                     <span class="text-xs font-semibold text-gray-500 ml-2">ID: ${block.id}</span>
