@@ -21,6 +21,10 @@ let blocksPerPage = 5;
 let expandedBlockId = null;
 const APPROX_LINE_CHAR_LIMIT = 180;
 
+// 置信度筛选状态
+let confidenceMinFilter = 0;
+let confidenceMaxFilter = 100;
+
 // Mock data for parsed blocks
 let parsedBlocks = [
    
@@ -201,8 +205,61 @@ function renderDocumentParsingDetails() {
     // console.log("Rendering DocumentParsingDetails component");
     // Helper functions for DocumentParsingDetails
     const getFilteredBlocksForPagination = () => {
-        // 使用全局的getFilteredBlocksForPagination函数
-        return window.getFilteredBlocksForPagination();
+        let filtered = parsedBlocks;
+        
+        // 如果包含'all'，显示所有内容
+        if (!displayFilter.includes('all') && displayFilter.length > 0) {
+            filtered = parsedBlocks.filter(block => {
+                // 检查是否符合任何一个筛选条件（OR逻辑）
+                if (displayFilter.includes('text') && block.type === 'text' && block.id !== 'text_info_title' && block.id !== 'text_info_author') {
+                    return true;
+                }
+                if (displayFilter.includes('image') && block.type === 'image') {
+                    return true;
+                }
+                if (displayFilter.includes('table') && block.type === 'table') {
+                    return true;
+                }
+                if (displayFilter.includes('title') && block.type === 'title') {
+                    return true;
+                }
+                if (displayFilter.includes('catalog') && block.type === 'catlog') {
+                    return true;
+                }
+                if (displayFilter.includes('chart') && block.type === 'chart') {
+                    return true;
+                }
+                return false;
+            });
+        }
+        
+        if (searchTextQuery) {
+            const lowerCaseText = searchTextQuery.toLowerCase();
+            filtered = filtered.filter(block =>
+                (block.type === 'text' && block.content.toLowerCase().includes(lowerCaseText)) ||
+                (block.type === 'image' && block.imageDescription && block.imageDescription.toLowerCase().includes(lowerCaseText)) ||
+                (block.type === 'table' && block.content && block.content.toLowerCase().includes(lowerCaseText)) ||
+                (block.type === 'title' && block.content && block.content.toLowerCase().includes(lowerCaseText)) ||
+                (block.type === 'catalog' && block.content && block.content.toLowerCase().includes(lowerCaseText)) ||
+                (block.type === 'chart' && block.imageDescription && block.imageDescription.toLowerCase().includes(lowerCaseText))
+            );
+        }
+        
+        // 置信度筛选
+        if (confidenceMinFilter > 0 || confidenceMaxFilter < 100) {
+            filtered = filtered.filter(block => {
+                const confidence = (block.confidence || 0) * 100; // 转换为百分比
+                return confidence >= confidenceMinFilter && confidence <= confidenceMaxFilter;
+            });
+        }
+        
+        // 将 QR Code1 和 QR Code2 提到最前面
+        const qrOrder = ['table_qr_code_1', 'image_qr_code_2'];
+        filtered = [
+            ...filtered.filter(b => qrOrder.includes(b.id)),
+            ...filtered.filter(b => !qrOrder.includes(b.id))
+        ];
+        return filtered;
     };
 
     const getTotalParsedBlocksPages = () => {
@@ -405,50 +462,91 @@ function renderDocumentParsingDetails() {
             </div>
             <div class="w-2/3 bg-white rounded-xl shadow-lg py-1 px-4 flex flex-col h-full min-h-0 flex-grow min-w-0 box-border">
                 <div class="flex flex-col sm:flex-row justify-between items-center mb-4 space-y-2 sm:space-y-0 sm:space-x-4 min-w-0 mt-4">
-                    <div class="mb-4">
+                    <div class="mb-4 w-full">
                       <div class="w-full flex justify-between items-center gap-2 mb-0">
-                        <div class="flex gap-2 flex-grow">
-                          <div class="flex items-center bg-white border border-gray-300 rounded-full px-4 py-2 flex-grow text-base">
-                            <span class="text-gray-400 mr-2 flex items-center">${Icons.Search(20)}</span>
+                        <div class="flex gap-1 flex-grow">
+                          <div class="flex items-center bg-white border border-gray-300 rounded-full px-3 py-1.5 flex-grow text-sm">
                             <input id="dpd-search-text-query" type="text" placeholder="输入想要搜索的内容" value="${searchTextQuery}"
-                                   class="flex-grow outline-none text-base bg-transparent" />
-                            <button id="dpd-search-text-btn" class="flex items-center justify-center h-full px-3 text-gray-400 hover:text-blue-600 focus:outline-none">${Icons.Search(22)}
+                                   class="flex-grow outline-none text-sm bg-transparent" />
+                            <button id="dpd-search-text-btn" class="flex items-center justify-center h-full px-2 text-gray-400 hover:text-blue-600 focus:outline-none">${Icons.Search(18)}</button>
                           </div>
                         </div>
-                        <div class="flex space-x-2 flex-shrink-0 ml-2">
+                        <div class="flex space-x-1 flex-shrink-0 ml-2">
                           ${!displayFilter.includes('all') && displayFilter.length > 0 ? `
-                            <div class="flex items-center px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full">
+                            <div class="flex items-center px-1.5 py-0.5 bg-blue-50 text-blue-700 text-xs rounded-full">
                               已选 ${displayFilter.length} 项
                             </div>
                           ` : ''}
-                          <button id="dpd-filter-all" class="px-3 py-1 rounded-full text-sm font-medium transition-colors duration-200 
+                          <button id="dpd-filter-all" class="px-2 py-0.5 rounded-full text-xs font-medium transition-colors duration-200 
                             ${displayFilter.includes('all') ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}">
                             全部
                         </button>
-                          <button id="dpd-filter-title" class="px-3 py-1 rounded-full text-sm font-medium transition-colors duration-200 
+                          <button id="dpd-filter-title" class="px-2 py-0.5 rounded-full text-xs font-medium transition-colors duration-200 
                               ${displayFilter.includes('title') ? 'bg-red-100 text-red-800' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}">
                               标题
                         </button>
-                          <button id="dpd-filter-catalog" class="px-3 py-1 rounded-full text-sm font-medium transition-colors duration-200 
+                          <button id="dpd-filter-catalog" class="px-2 py-0.5 rounded-full text-xs font-medium transition-colors duration-200 
                               ${displayFilter.includes('catalog') ? 'bg-orange-100 text-orange-800' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}" style="${displayFilter.includes('catalog') ? 'background:#FFEDD5;color:#C2410C;' : ''}">
                               目录
                           </button>
-                          <button id="dpd-filter-text" class="px-3 py-1 rounded-full text-sm font-medium transition-colors duration-200 
+                          <button id="dpd-filter-text" class="px-2 py-0.5 rounded-full text-xs font-medium transition-colors duration-200 
                               ${displayFilter.includes('text') ? 'bg-blue-100 text-blue-800' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}">
                               正文
                           </button>
-                          <button id="dpd-filter-image" class="px-3 py-1 rounded-full text-sm font-medium transition-colors duration-200 
+                          <button id="dpd-filter-image" class="px-2 py-0.5 rounded-full text-xs font-medium transition-colors duration-200 
                               ${displayFilter.includes('image') ? 'bg-green-100 text-green-800' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}">
                             图片
                         </button>
-                          <button id="dpd-filter-table" class="px-3 py-1 rounded-full text-sm font-medium transition-colors duration-200 
+                          <button id="dpd-filter-table" class="px-2 py-0.5 rounded-full text-xs font-medium transition-colors duration-200 
                               ${displayFilter.includes('table') ? 'bg-purple-100 text-purple-800' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}">
                               表格
                           </button>
-                          <button id="dpd-filter-chart" class="px-3 py-1 rounded-full text-sm font-medium transition-colors duration-200 
+                          <button id="dpd-filter-chart" class="px-2 py-0.5 rounded-full text-xs font-medium transition-colors duration-200 
                               ${displayFilter.includes('chart') ? 'bg-pink-100 text-pink-800' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}">
                               图表
                           </button>
+                        </div>
+                        
+                        <!-- 置信度筛选器 - 移到同一行 -->
+                        <div class="flex items-center gap-2 ml-3 bg-gray-50 border border-gray-200 rounded-full px-3 py-1.5 flex-shrink-0">
+                          <div class="flex items-center gap-1.5">
+                            <div class="w-0.5 h-4 bg-green-500 rounded-full"></div>
+                            <span class="text-gray-700 font-medium text-xs">置信度筛选</span>
+                          </div>
+                          <div class="flex items-center gap-1.5">
+                            <input 
+                              id="confidence-min-input" 
+                              type="number" 
+                              min="0" 
+                              max="100" 
+                              value="${confidenceMinFilter}"
+                              class="w-12 px-1 py-0.5 text-center border border-gray-300 rounded text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            />
+                            <span class="text-gray-500 text-xs">至</span>
+                            <input 
+                              id="confidence-max-input" 
+                              type="number" 
+                              min="0" 
+                              max="100" 
+                              value="${confidenceMaxFilter}"
+                              class="w-12 px-1 py-0.5 text-center border border-gray-300 rounded text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            />
+                            <span class="text-gray-500 text-xs">%</span>
+                          </div>
+                          <div class="flex gap-1">
+                            <button 
+                              id="confidence-apply-btn" 
+                              class="px-2 py-0.5 bg-blue-500 text-white text-xs rounded hover:bg-blue-600 transition-colors duration-200"
+                            >
+                              应用
+                            </button>
+                            <button 
+                              id="confidence-reset-btn" 
+                              class="px-2 py-0.5 bg-gray-300 text-gray-700 text-xs rounded hover:bg-gray-400 transition-colors duration-200"
+                            >
+                              重置
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -678,6 +776,36 @@ function attachDocumentParsingDetailsListeners() {
     document.getElementById('dpd-filter-title')?.addEventListener('click', () => { setDisplayFilterAndRefresh('title'); });
     document.getElementById('dpd-filter-catalog')?.addEventListener('click', () => { setDisplayFilterAndRefresh('catalog'); });
     document.getElementById('dpd-filter-chart')?.addEventListener('click', () => { setDisplayFilterAndRefresh('chart'); });
+
+    // 置信度筛选器事件监听
+    document.getElementById('confidence-apply-btn')?.addEventListener('click', () => {
+        const minInput = document.getElementById('confidence-min-input');
+        const maxInput = document.getElementById('confidence-max-input');
+        
+        if (minInput && maxInput) {
+            const minValue = parseInt(minInput.value) || 0;
+            const maxValue = parseInt(maxInput.value) || 100;
+            
+            // 确保最小值不大于最大值
+            if (minValue <= maxValue) {
+                confidenceMinFilter = minValue;
+                confidenceMaxFilter = maxValue;
+                parsedBlocksCurrentPage = 1; // 重置到第一页
+                renderApp();
+            } else {
+                alert('最小值不能大于最大值');
+                minInput.value = confidenceMinFilter;
+                maxInput.value = confidenceMaxFilter;
+            }
+        }
+    });
+    
+    document.getElementById('confidence-reset-btn')?.addEventListener('click', () => {
+        confidenceMinFilter = 0;
+        confidenceMaxFilter = 100;
+        parsedBlocksCurrentPage = 1; // 重置到第一页
+        renderApp();
+    });
 
     function setDisplayFilterAndRefresh(filter) {
         if (filter === 'all') {
@@ -1112,6 +1240,14 @@ function getFilteredBlocksForPagination() {
             (block.type === 'catalog' && block.content && block.content.toLowerCase().includes(lowerCaseText)) ||
             (block.type === 'chart' && block.imageDescription && block.imageDescription.toLowerCase().includes(lowerCaseText))
         );
+    }
+    
+    // 置信度筛选
+    if (confidenceMinFilter > 0 || confidenceMaxFilter < 100) {
+        filtered = filtered.filter(block => {
+            const confidence = (block.confidence || 0) * 100; // 转换为百分比
+            return confidence >= confidenceMinFilter && confidence <= confidenceMaxFilter;
+        });
     }
     
     // 将 QR Code1 和 QR Code2 提到最前面
