@@ -2,13 +2,13 @@
 
 // Global state variables
 let currentPage = 'parsingDetails'; // 'parsingDetails' or 'smartSearch'
+let currentResultTab = 'parsing'; // 'parsing' or 'segmentation' - 解析结果是默认标签
+let selectedParsingBlock = null; // 当前选中的解析结果分块
+let hoveredParsingBlock = null; // 当前悬浮的解析结果分块
 
 // --- State for DocumentParsingDetails ---
 let displayFilter = ['all']; // 支持多选: ['all'], ['text', 'image'], etc.
 let highlightedBlockId = null;
-let hoveredOriginalArea = null;
-let hoveredBlockPreview = null;
-let mouseCoords = { x: 0, y: 0 };
 let showConfirmModalState = false;
 let blockToDeleteId = null;
 let showDetailViewModalState = false;
@@ -25,52 +25,27 @@ const APPROX_LINE_CHAR_LIMIT = 180;
 let confidenceMinFilter = 0;
 let confidenceMaxFilter = 100;
 
-// Mock data for parsed blocks
+// Mock data for parsed blocks - 移除所有area和areas属性
 let parsedBlocks = [
-   
-    { id: 'text_info_title', type: 'title', content: '论文题目: 基于语音辅助的多语言文本分类语言偏见去偏研究方佳俊', disabled: false, area: { top: '29%', left: '15%', width: '70%', height: '5%' }, isExpanded: false, page: 1, confidence: 0.95 },
-    { id: 'text_info_author', type: 'catlog', content: `论文作者: 方佳俊 指导教师 阳爱民\\n\\n该作者在多语言文本分类领域进行了深入研究，尤其关注如何消除语言偏见对模型性能的影响。他的研究旨在开发创新的语音辅助去偏技术，以提高跨语言文本分类的公平性和准确性。\\n\\n研究内容涵盖了以下几个方面：\\n1. 多语言数据集的构建与偏见分析。\\n2. 基于语音特征的语言偏见识别方法。\\n3. 深度学习模型在去偏任务中的应用。\\n4. 评估去偏效果的指标与方法。\\n5. 实际应用场景中的案例分析与效果验证。\\n\\n方佳俊同学的这项工作对于推动多语言自然语言处理技术的发展，以及构建更公平、更具包容性的人工智能系统具有重要意义。他的研究成果不仅填补了相关领域的空白，也为未来的研究提供了宝贵的思路和方向。\\n\\n在研究过程中，他积极参与学术交流，多次在国内外顶级会议上发表论文，并与多个研究机构建立了合作关系。这些经历进一步丰富了他的学术视野和实践能力。\\n\\n为了充分展示该研究的深度和广度，我们在此增加更多详细信息。研究团队在数据预处理阶段投入了大量精力，确保了训练数据的多样性和代表性。他们采用了先进的自然语言处理技术，对不同语言的文本数据进行了细致的特征提取和表示学习。在模型设计方面，研究人员探索了多种神经网络架构，包括循环神经网络（RNN）、长短期记忆网络（LSTM）和Transformer等，并针对语音辅助去偏的特点进行了创新性改进。\\n\\n实验结果表明，所提出的语音辅助去偏方法在多个公开数据集上均取得了显著的性能提升，有效降低了语言偏见对文本分类结果的影响。这些成果为构建更加鲁棒和公平的AI系统提供了坚实的基础。未来的工作将侧重于将该技术应用于更广泛的领域，例如情感分析、意图识别和机器翻译等，并进一步探索多模态信息融合的潜力。\\n\\n为了确保滚动条能够出现，我们继续增加一些内容。这项研究的创新之处在于其跨学科的融合，将语音信号处理与自然语言处理技术相结合，为解决多语言环境下的偏见问题提供了新的视角。此外，研究团队还开发了一套可扩展的评估框架，能够全面衡量去偏算法的有效性，并为不同应用场景提供定制化的解决方案。这些努力共同构成了方佳俊同学在多语言文本分类语言偏见去偏研究方面的全面贡献。他的研究不仅具有理论价值，更具备实际应用潜力，有望在未来为全球范围内的多语言信息处理带来积极影响。\\n\\n我们还将进一步探讨二维码在现代商业中的多种应用。除了作为联系客服的便捷工具，二维码还可以被集成到营销活动中，例如扫描二维码获取折扣券、参与抽奖活动或直接跳转到产品购买页面。在物流和仓储管理中，二维码被广泛用于追踪货物，提高效率和准确性。在教育领域，学生可以通过扫描二维码快速访问在线课程资料或提交作业。这些多样化的应用场景充分体现了二维码作为一种高效信息载体的巨大潜力，它极大地简化了信息获取和交互过程，为用户带来了前所未有的便利。方佳俊的研究论文还详细讨论了在不同语言对（如中英、中日）之间进行偏见去偏的挑战和机遇，并提出了针对性的策略。他强调了跨文化语境理解的重要性，以及如何通过引入文化敏感性特征来进一步提升模型的去偏能力。`, disabled: false, area: { top: '34%', left: '15%', width: '70%', height: '3%' }, isExpanded: false, page: 1, confidence: 0.88 },
-    { id: 'text_detection_desc_1', type: 'text', content: `1. 检测依据:学校模板《广东工业大学硕士专业学位论文模板》;国家标准《GB7713 学位论文编写格式》,《GB7714参考文献著录规则》,《GB15834标点符号用法》,《GB15835出版物上数字用法》,《GB3100国际单位制及其应用》,《GB3101有关量单位符号的一般原则》,《GB3102空间和时间的量和单位》。\\n\\n本检测报告严格遵循上述国家标准和学校规定，确保检测过程的严谨性和结果的准确性。所有引用规则均经过最新修订，以适应当前学术规范的要求。检测范围涵盖了从论文结构、引用格式到标点符号使用等多个维度，旨在提供全面、细致的格式审查服务。\\n\\n我们致力于帮助学生和研究人员提升论文质量，符合各项出版和学术要求。`, disabled: false, area: { top: '55%', left: '10%', width: '80%', height: '15%' }, isExpanded: false, page: 1, confidence: 0.92 },
-    { id: 'table_qr_code_1', type: 'table', url: 'https://placehold.co/600x400/000000/FFFFFF?text=Table+1', imageDescription: '左上角表格，用于展示数据统计。', disabled: false, area: { top: '0%', left: '0%', width: '20%', height: '15%' }, page: 1, confidence: 0.78 },
-    { id: 'image_qr_code_2', type: 'image', url: 'https://placehold.co/150x150/000000/FFFFFF?text=QR+Code+2', imageDescription: `右上角二维码，用于微信客服。这个二维码是用户与客服团队进行便捷沟通的桥梁，通过扫描此码，用户可以快速进入客服对话界面，获取帮助、咨询问题或反馈意见。我们致力于提供高效、友好的客户服务体验，确保用户在使用过程中遇到的任何问题都能得到及时解决。此外，该二维码也可能用于推广最新的产品信息、服务更新或特别优惠活动，旨在增强用户粘性并拓展服务范围。我们鼓励所有用户积极利用此功能，以便我们能更好地为您服务，并持续优化我们的产品和体验。您的每一次反馈都对我们至关重要，帮助我们不断进步。`, disabled: false, area: { top: '0%', left: '80%', width: '20%', height: '15%' }, page: 1, confidence: 0.85 },
-    { id: 'text_detection_result', type: 'text', content: '检测结果: 全文页数 72, 字符统计 65979, 中文字符 31115, 非中文单词 3372, 问题总数 = 6, 万字差错率 0.90/10000, 结论 合格', disabled: false, area: { top: '80%', left: '10%', width: '80%', height: '10%' }, isExpanded: false, page: 1, confidence: 0.98 },
-    { id: 'text_page2_intro', type: 'text', content: '这是第二页的介绍内容，详细阐述了检测流程的初步阶段。', disabled: false, area: { top: '20%', left: '10%', width: '80%', height: '10%' }, isExpanded: false, page: 2, confidence: 0.87 },
-    { id: 'image_page2_flowchart', type: 'chart', url: 'https://placehold.co/400x200/ADD8E6/FFFFFF?text=Flowchart', imageDescription: '第二页的流程图，展示了检测步骤。', disabled: false, area: { top: '40%', left: '15%', width: '70%', height: '30%' }, page: 2, confidence: 0.91 },
-    { id: 'text_page3_details', type: 'text', content: '第三页提供了具体的检测细节和数据分析方法，包括各种算法的运用和结果的解读。本页内容较为专业，旨在为技术人员提供深入的参考。', disabled: false, area: { top: '15%', left: '10%', width: '80%', height: '20%' }, isExpanded: false, page: 3, confidence: 0.84 },
-    { id: 'image_page3_graph', type: 'chart', url: 'https://placehold.co/400x250/90EE90/FFFFFF?text=Graph', imageDescription: '第三页的数据图表，显示了性能趋势。', disabled: false, area: { top: '40%', left: '20%', width: '60%', height: '40%' }, page: 3, confidence: 0.89 },
-    { id: 'text_page4_conclusion', type: 'text', content: '第四页是报告的结论部分，总结了本次检测的发现和建议，并对未来的研究方向提出了展望。', disabled: false, area: { top: '25%', left: '10%', width: '80%', height: '15%' }, isExpanded: false, page: 4, confidence: 0.93 },
-    { id: 'text_page5_appendix', type: 'text', content: '第五页是附录，包含了所有引用的参考文献列表和一些补充材料。', disabled: false, area: { top: '30%', left: '10%', width: '80%', height: '10%' }, isExpanded: false, page: 5, confidence: 0.76 },
-    { id: 'text_page1_extra1', type: 'text', content: '这是第一页的额外文本块1，用于填充内容以测试分页效果。', disabled: false, area: { top: '10%', left: '20%', width: '60%', height: '5%' }, isExpanded: false, page: 1, confidence: 0.82 },
-    { id: 'text_page1_extra2', type: 'text', content: '这是第一页的额外文本块2，用于填充内容以测试分页效果。', disabled: false, area: { top: '15%', left: '20%', width: '60%', height: '5%' }, isExpanded: false, page: 1, confidence: 0.79 },
-    { id: 'text_page1_extra3', type: 'text', content: '这是第一页的额外文本块3，用于填充内容以测试分页效果。', disabled: false, area: { top: '20%', left: '20%', width: '60%', height: '5%' }, isExpanded: false, page: 1, confidence: 0.86 },
-    { id: 'text_page2_extra1', type: 'text', content: '这是第二页的额外文本块1。', disabled: false, area: { top: '10%', left: '20%', width: '60%', height: '5%' }, isExpanded: false, page: 2, confidence: 0.73 },
-    { id: 'text_page2_extra2', type: 'text', content: '这是第二页的额外文本块2。', disabled: false, area: { top: '15%', left: '20%', width: '60%', height: '5%' }, isExpanded: false, page: 2, confidence: 0.88 },
-    { id: 'text_page3_extra1', type: 'text', content: '这是第三页的额外文本块1。', disabled: false, area: { top: '10%', left: '20%', width: '60%', height: '5%' }, isExpanded: false, page: 3, confidence: 0.90 },
+    { id: 'text_info_title', type: 'title', content: '论文题目: 基于语音辅助的多语言文本分类语言偏见去偏研究方佳俊', disabled: false, isExpanded: false, page: 1, confidence: 0.95, keywords: ['论文', '语音辅助', '文本分类'] },
+    { id: 'text_info_author', type: 'catlog', content: `论文作者: 方佳俊 指导教师 阳爱民\\n\\n该作者在多语言文本分类领域进行了深入研究，尤其关注如何消除语言偏见对模型性能的影响。他的研究旨在开发创新的语音辅助去偏技术，以提高跨语言文本分类的公平性和准确性。\\n\\n研究内容涵盖了以下几个方面：\\n1. 多语言数据集的构建与偏见分析。\\n2. 基于语音特征的语言偏见识别方法。\\n3. 深度学习模型在去偏任务中的应用。\\n4. 评估去偏效果的指标与方法。\\n5. 实际应用场景中的案例分析与效果验证。\\n\\n方佳俊同学的这项工作对于推动多语言自然语言处理技术的发展，以及构建更公平、更具包容性的人工智能系统具有重要意义。他的研究成果不仅填补了相关领域的空白，也为未来的研究提供了宝贵的思路和方向。\\n\\n在研究过程中，他积极参与学术交流，多次在国内外顶级会议上发表论文，并与多个研究机构建立了合作关系。这些经历进一步丰富了他的学术视野和实践能力。\\n\\n为了充分展示该研究的深度和广度，我们在此增加更多详细信息。研究团队在数据预处理阶段投入了大量精力，确保了训练数据的多样性和代表性。他们采用了先进的自然语言处理技术，对不同语言的文本数据进行了细致的特征提取和表示学习。在模型设计方面，研究人员探索了多种神经网络架构，包括循环神经网络（RNN）、长短期记忆网络（LSTM）和Transformer等，并针对语音辅助去偏的特点进行了创新性改进。\\n\\n实验结果表明，所提出的语音辅助去偏方法在多个公开数据集上均取得了显著的性能提升，有效降低了语言偏见对文本分类结果的影响。这些成果为构建更加鲁棒和公平的AI系统提供了坚实的基础。未来的工作将侧重于将该技术应用于更广泛的领域，例如情感分析、意图识别和机器翻译等，并进一步探索多模态信息融合的潜力。\\n\\n为了确保滚动条能够出现，我们继续增加一些内容。这项研究的创新之处在于其跨学科的融合，将语音信号处理与自然语言处理技术相结合，为解决多语言环境下的偏见问题提供了新的视角。此外，研究团队还开发了一套可扩展的评估框架，能够全面衡量去偏算法的有效性，并为不同应用场景提供定制化的解决方案。这些努力共同构成了方佳俊同学在多语言文本分类语言偏见去偏研究方面的全面贡献。他的研究不仅具有理论价值，更具备实际应用潜力，有望在未来为全球范围内的多语言信息处理带来积极影响。\\n\\n我们还将进一步探讨二维码在现代商业中的多种应用。除了作为联系客服的便捷工具，二维码还可以被集成到营销活动中，例如扫描二维码获取折扣券、参与抽奖活动或直接跳转到产品购买页面。在物流和仓储管理中，二维码被广泛用于追踪货物，提高效率和准确性。在教育领域，学生可以通过扫描二维码快速访问在线课程资料或提交作业。这些多样化的应用场景充分体现了二维码作为一种高效信息载体的巨大潜力，它极大地简化了信息获取和交互过程，为用户带来了前所未有的便利。方佳俊的研究论文还详细讨论了在不同语言对（如中英、中日）之间进行偏见去偏的挑战和机遇，并提出了针对性的策略。他强调了跨文化语境理解的重要性，以及如何通过引入文化敏感性特征来进一步提升模型的去偏能力。`, disabled: false, isExpanded: false, page: 1, confidence: 0.88, keywords: ['作者简介', '研究方向', '学术成果'] },
+    { id: 'text_detection_desc_1', type: 'text', content: `1. 检测依据:学校模板《广东工业大学硕士专业学位论文模板》;国家标准《GB7713 学位论文编写格式》,《GB7714参考文献著录规则》,《GB15834标点符号用法》,《GB15835出版物上数字用法》,《GB3100国际单位制及其应用》,《GB3101有关量单位符号的一般原则》,《GB3102空间和时间的量和单位》。\\n\\n本检测报告严格遵循上述国家标准和学校规定，确保检测过程的严谨性和结果的准确性。所有引用规则均经过最新修订，以适应当前学术规范的要求。检测范围涵盖了从论文结构、引用格式到标点符号使用等多个维度，旨在提供全面、细致的格式审查服务。\\n\\n我们致力于帮助学生和研究人员提升论文质量，符合各项出版和学术要求。`, disabled: false, isExpanded: false, page: 1, confidence: 0.92, keywords: ['检测标准', '国家规范', '论文格式'] },
+    { id: 'table_qr_code_1', type: 'table', url: 'https://placehold.co/600x400/000000/FFFFFF?text=Table+1', imageDescription: '左上角表格，用于展示数据统计。', disabled: false, page: 1, confidence: 0.78, keywords: ['数据统计', '表格'] },
+    { id: 'image_qr_code_2', type: 'image', url: 'https://placehold.co/150x150/000000/FFFFFF?text=QR+Code+2', imageDescription: `右上角二维码，用于微信客服。这个二维码是用户与客服团队进行便捷沟通的桥梁，通过扫描此码，用户可以快速进入客服对话界面，获取帮助、咨询问题或反馈意见。我们致力于提供高效、友好的客户服务体验，确保用户在使用过程中遇到的任何问题都能得到及时解决。此外，该二维码也可能用于推广最新的产品信息、服务更新或特别优惠活动，旨在增强用户粘性并拓展服务范围。我们鼓励所有用户积极利用此功能，以便我们能更好地为您服务，并持续优化我们的产品和体验。您的每一次反馈都对我们至关重要，帮助我们不断进步。`, disabled: false, page: 1, confidence: 0.85, keywords: ['客服', '二维码', '联系方式'] },
+    { id: 'text_detection_result', type: 'text', content: '检测结果: 全文页数 72, 字符统计 65979, 中文字符 31115, 非中文单词 3372, 问题总数 = 6, 万字差错率 0.90/10000, 结论 合格', disabled: false, isExpanded: false, page: 1, confidence: 0.98, keywords: ['检测结果', '统计数据', '合格'] },
+    { id: 'text_page2_intro', type: 'text', content: '这是第二页的介绍内容，详细阐述了检测流程的初步阶段。', disabled: false, isExpanded: false, page: 2, confidence: 0.87, keywords: ['检测流程', '介绍'] },
+    { id: 'image_page2_flowchart', type: 'chart', url: 'https://placehold.co/400x200/ADD8E6/FFFFFF?text=Flowchart', imageDescription: '第二页的流程图，展示了检测步骤。', disabled: false, page: 2, confidence: 0.91, keywords: ['流程图', '检测步骤'] },
+    { id: 'text_page3_details', type: 'text', content: '第三页提供了具体的检测细节和数据分析方法，包括各种算法的运用和结果的解读。本页内容较为专业，旨在为技术人员提供深入的参考。', disabled: false, isExpanded: false, page: 3, confidence: 0.84, keywords: ['检测细节', '数据分析', '技术参考'] },
+    { id: 'image_page3_graph', type: 'chart', url: 'https://placehold.co/400x250/90EE90/FFFFFF?text=Graph', imageDescription: '第三页的数据图表，显示了性能趋势。', disabled: false, page: 3, confidence: 0.89, keywords: ['数据图表', '性能趋势'] },
+    { id: 'text_page4_conclusion', type: 'text', content: '第四页是报告的结论部分，总结了本次检测的发现和建议，并对未来的研究方向提出了展望。', disabled: false, isExpanded: false, page: 4, confidence: 0.93, keywords: ['结论', '建议', '展望'] },
+    { id: 'text_page5_appendix', type: 'text', content: '第五页是附录，包含了所有引用的参考文献列表和一些补充材料。', disabled: false, isExpanded: false, page: 5, confidence: 0.76, keywords: ['附录', '参考文献'] },
+    { id: 'text_page1_extra1', type: 'text', content: '这是第一页的额外文本块1，用于填充内容以测试分页效果。', disabled: false, isExpanded: false, page: 1, confidence: 0.82, keywords: ['测试', '分页'] },
+    { id: 'text_page1_extra2', type: 'text', content: '这是第一页的额外文本块2，用于填充内容以测试分页效果。', disabled: false, isExpanded: false, page: 1, confidence: 0.79, keywords: ['测试', '分页'] },
+    { id: 'text_page1_extra3', type: 'text', content: '这是第一页的额外文本块3，用于填充内容以测试分页效果。', disabled: false, isExpanded: false, page: 1, confidence: 0.86, keywords: ['测试', '分页'] },
+    { id: 'text_page2_extra1', type: 'text', content: '这是第二页的额外文本块1。', disabled: false, isExpanded: false, page: 2, confidence: 0.73, keywords: ['补充内容'] },
+    { id: 'text_page2_extra2', type: 'text', content: '这是第二页的额外文本块2。', disabled: false, isExpanded: false, page: 2, confidence: 0.88, keywords: ['补充内容'] },
+    { id: 'text_page3_extra1', type: 'text', content: '这是第三页的额外文本块1。', disabled: false, isExpanded: false, page: 3, confidence: 0.90, keywords: ['补充内容'] },
 ];
-
-// 修改parsedBlocks中text_detection_desc_1，支持areas数组
-parsedBlocks = parsedBlocks.map(block => {
-    if (block.id === 'text_detection_desc_1') {
-        return {
-            ...block,
-            areas: [
-                { page: 1, top: '80%', left: '10%', width: '80%', height: '10%' }, // 第1页底部
-                { page: 2, top: '0%', left: '10%', width: '80%', height: '10%' }   // 第2页顶部
-            ]
-        };
-    }
-    return block;
-});
-
-const hoverAreas = parsedBlocks.map(block => ({
-    id: block.id,
-    x: parseFloat(block.area.left),
-    y: parseFloat(block.area.top),
-    width: parseFloat(block.area.width),
-    height: parseFloat(block.area.height),
-    page: block.page
-}));
-
 
 // --- State for SmartSearch ---
 let smartSearchQuery = ''; // Renamed from query to avoid conflict
@@ -78,24 +53,16 @@ let chatHistory = [];
 let smartSearchLoading = false; // Renamed from loading
 let smartSearchHighlightedBlockId = null; // Renamed
 
-const smartSearchParsedBlocks = [ // Data specific to SmartSearch view
-    { id: 'text_title', type: 'text', content: '学位论文格式检测合格证明', area: { top: '10%', left: '20%', width: '60%', height: '5%' }, confidence: 0.94 },
-    { id: 'text_info_unit', type: 'text', content: '送检单位: 广东工业大学', area: { top: '25%', left: '15%', width: '70%', height: '3%' }, confidence: 0.97 },
-    { id: 'text_info_title', type: 'text', content: '论文题目: 基于语音辅助的多语言文本分类语言偏见去偏研究方佳俊', area: { top: '29%', left: '15%', width: '70%', height: '5%' }, confidence: 0.95 },
-    { id: 'text_info_author', type: 'text', content: '论文作者: 方佳俊 指导教师 阳爱民', area: { top: '34%', left: '15%', width: '70%', height: '3%' }, confidence: 0.88 },
-    { id: 'text_detection_desc_1', type: 'text', content: '1. 检测依据:学校模板《广东工业大学硕士专业学位论文模板》;国家标准《GB7713 学位论文编写格式》,《GB7714参考文献著录规则》', area: { top: '55%', left: '10%', width: '80%', height: '15%' }, confidence: 0.92 },
-    { id: 'table_qr_code_1', type: 'table', url: 'https://placehold.co/600x400/000000/FFFFFF?text=Table+1', imageDescription: '左上角表格，用于展示数据统计。', area: { top: '0%', left: '0%', width: '20%', height: '15%' }, confidence: 0.78 },
-    { id: 'image_qr_code_2', type: 'image', url: 'https://placehold.co/150x150/000000/FFFFFF?text=QR+Code+2', imageDescription: '右上角二维码，用于微信客服。', area: { top: '0%', left: '80%', width: '20%', height: '15%' }, confidence: 0.85 },
-    { id: 'text_detection_result', type: 'text', content: '检测结果: 全文页数 72, 字符统计 65979, 中文字符 31115, 非中文单词 3372, 问题总数 6, 万字差错率 0.90/10000, 结论 合格', area: { top: '80%', left: '10%', width: '80%', height: '10%' }, confidence: 0.98 },
+const smartSearchParsedBlocks = [ // Data specific to SmartSearch view - 移除所有area属性
+    { id: 'text_title', type: 'text', content: '学位论文格式检测合格证明', confidence: 0.94 },
+    { id: 'text_info_unit', type: 'text', content: '送检单位: 广东工业大学', confidence: 0.97 },
+    { id: 'text_info_title', type: 'text', content: '论文题目: 基于语音辅助的多语言文本分类语言偏见去偏研究方佳俊', confidence: 0.95 },
+    { id: 'text_info_author', type: 'text', content: '论文作者: 方佳俊 指导教师 阳爱民', confidence: 0.88 },
+    { id: 'text_detection_desc_1', type: 'text', content: '1. 检测依据:学校模板《广东工业大学硕士专业学位论文模板》;国家标准《GB7713 学位论文编写格式》,《GB7714参考文献著录规则》', confidence: 0.92 },
+    { id: 'table_qr_code_1', type: 'table', url: 'https://placehold.co/600x400/000000/FFFFFF?text=Table+1', imageDescription: '左上角表格，用于展示数据统计。', confidence: 0.78 },
+    { id: 'image_qr_code_2', type: 'image', url: 'https://placehold.co/150x150/000000/FFFFFF?text=QR+Code+2', imageDescription: '右上角二维码，用于微信客服。', confidence: 0.85 },
+    { id: 'text_detection_result', type: 'text', content: '检测结果: 全文页数 72, 字符统计 65979, 中文字符 31115, 非中文单词 3372, 问题总数 6, 万字差错率 0.90/10000, 结论 合格', confidence: 0.98 },
 ];
-const smartSearchHoverAreas = smartSearchParsedBlocks.map(block => ({
-    id: block.id,
-    x: parseFloat(block.area.left),
-    y: parseFloat(block.area.top),
-    width: parseFloat(block.area.width),
-    height: parseFloat(block.area.height),
-}));
-
 
 // Icon SVGs
 const Icons = {
@@ -110,7 +77,13 @@ const Icons = {
 
 // Function to set current page and re-render
 function setCurrentPage(page) {
-    currentPage = page;
+    currentPage = 'parsingDetails';
+    renderApp();
+}
+
+// Function to set current result tab and re-render
+function setCurrentResultTab(tab) {
+    currentResultTab = tab;
     renderApp();
 }
 
@@ -122,32 +95,34 @@ function renderApp() {
         return;
     }
 
+    const existingStyles = document.getElementById('dynamic-app-styles');
+    if (!existingStyles) {
+        const styleSheet = document.createElement("style");
+        styleSheet.id = 'dynamic-app-styles';
+        styleSheet.innerText = `
+            .parsing-area-overlay:hover {
+                border: 2px solid #3b82f6 !important;
+            }
+            .parsing-content-block:hover {
+                --tw-ring-color: rgb(147 197 253 / 1);
+                box-shadow: 0 0 0 2px var(--tw-ring-color);
+            }
+        `;
+        document.head.appendChild(styleSheet);
+    }
+
     const appHTML = `
         <nav class="bg-white shadow-md flex items-center border-b border-gray-200" style="height:56px;">
             <button id="back-btn" class="ml-4 mr-2 w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 hover:bg-blue-100 text-blue-600 transition-colors shadow-sm" title="返回">
                 <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
             </button>
             <div class="flex-1 flex justify-center">
-            <button
-                id="nav-parsingDetails"
-                class="px-8 py-3 text-lg font-semibold transition-all duration-300 ${
-                currentPage === 'parsingDetails'
-                    ? 'border-b-2 border-blue-600 text-blue-600'
-                    : 'border-b-2 border-transparent text-gray-700 hover:text-blue-500 hover:border-gray-300'
-                } focus:outline-none"
-            >
+                <button
+                    id="nav-parsingDetails"
+                    class="px-8 py-3 text-lg font-semibold transition-all duration-300 text-blue-600 border-b-2 border-blue-600"
+                >
                     处理详情
-            </button>
-            <button
-                id="nav-smartSearch"
-                class="px-8 py-3 text-lg font-semibold transition-all duration-300 ${
-                currentPage === 'smartSearch'
-                    ? 'border-b-2 border-blue-600 text-blue-600'
-                    : 'border-b-2 border-transparent text-gray-700 hover:text-blue-500 hover:border-gray-300'
-                } focus:outline-none"
-            >
-                智能检索
-            </button>
+                </button>
             </div>
         </nav>
 
@@ -160,18 +135,31 @@ function renderApp() {
                         </span>
                     </div>
                 <div class="w-2/3 flex items-center justify-between">
-                    <span class="flex items-center text-xl font-bold text-gray-900">
-                        <span class="inline-block w-2 h-6 bg-blue-500 rounded mr-3"></span>
-                        处理结果
-                        </span>
-                    <button id="export-btn" class="ml-4 mr-6 px-4 py-2 rounded-lg bg-blue-600 text-white font-medium flex items-center gap-2 hover:bg-blue-700 transition-colors shadow" title="下载">
-                        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
-                        下载
-                    </button>
+                    <!-- 导航栏标签 -->
+                    <div class="flex items-center gap-8">
+                        <button
+                            id="nav-parsing-result"
+                            class="px-4 py-2 text-lg font-semibold transition-all duration-300 ${currentResultTab === 'parsing' ? 'border-b-2 border-blue-600 text-blue-600 bg-blue-50' : 'border-b-2 border-transparent text-gray-700 hover:text-blue-500 hover:border-gray-300'} focus:outline-none rounded-t-lg"
+                        >
+                            解析结果
+                        </button>
+                        <button
+                            id="nav-segmentation-result"
+                            class="px-4 py-2 text-lg font-semibold transition-all duration-300 ${currentResultTab === 'segmentation' ? 'border-b-2 border-blue-600 text-blue-600 bg-blue-50' : 'border-b-2 border-transparent text-gray-700 hover:text-blue-500 hover:border-gray-300'} focus:outline-none rounded-t-lg"
+                        >
+                            分段结果
+                        </button>
                     </div>
+                    ${currentResultTab === 'segmentation' ? `
+                        <button id="export-btn" class="ml-4 mr-6 px-4 py-2 rounded-lg bg-blue-600 text-white font-medium flex items-center gap-2 hover:bg-blue-700 transition-colors shadow" title="下载">
+                            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+                            下载
+                        </button>
+                    ` : ''}
                 </div>
+            </div>
             <div id="page-content" class="flex-grow flex flex-row h-full min-h-0">
-                ${currentPage === 'parsingDetails' ? renderDocumentParsingDetails() : renderSmartSearch()}
+                ${renderDocumentParsingDetails()}
             </div>
         </div>
         <div id="modal-container"></div>
@@ -181,23 +169,21 @@ function renderApp() {
 
     // Add event listeners for navigation
     document.getElementById('nav-parsingDetails').addEventListener('click', () => setCurrentPage('parsingDetails'));
-    document.getElementById('nav-smartSearch').addEventListener('click', () => setCurrentPage('smartSearch'));
+
+    // Add event listeners for result tabs
+    document.getElementById('nav-parsing-result').addEventListener('click', () => setCurrentResultTab('parsing'));
+    document.getElementById('nav-segmentation-result').addEventListener('click', () => setCurrentResultTab('segmentation'));
 
     // Render modals if their state is true
     if (showConfirmModalState) {
-        renderConfirmationModalInternal(detailViewContent.message); // Assuming detailViewContent.message is what you meant by 'message' for ConfirmationModal
+        renderConfirmationModalInternal(detailViewContent.message);
     }
     if (showDetailViewModalState) {
         renderDetailViewModalInternal(detailViewContent.content, detailViewContent.type);
     }
     
     // After rendering the main app, if a specific page's render function needs to attach listeners, it should be called
-    // For example, if renderDocumentParsingDetails itself attaches listeners to its generated content:
-    if (currentPage === 'parsingDetails') {
-        attachDocumentParsingDetailsListeners();
-    } else if (currentPage === 'smartSearch') {
-        attachSmartSearchListeners();
-    }
+    attachDocumentParsingDetailsListeners();
 }
 
 // Placeholder for component rendering functions and listener attachment
@@ -211,22 +197,13 @@ function renderDocumentParsingDetails() {
         if (!displayFilter.includes('all') && displayFilter.length > 0) {
             filtered = parsedBlocks.filter(block => {
                 // 检查是否符合任何一个筛选条件（OR逻辑）
-                if (displayFilter.includes('text') && block.type === 'text' && block.id !== 'text_info_title' && block.id !== 'text_info_author') {
+                if (displayFilter.includes('text') && (block.type === 'text' || block.type === 'catlog')) {
                     return true;
                 }
-                if (displayFilter.includes('image') && block.type === 'image') {
-                    return true;
-                }
-                if (displayFilter.includes('table') && block.type === 'table') {
+                if (displayFilter.includes('image') && (block.type === 'image' || block.type === 'table' || block.type === 'chart')) {
                     return true;
                 }
                 if (displayFilter.includes('title') && block.type === 'title') {
-                    return true;
-                }
-                if (displayFilter.includes('catalog') && block.type === 'catlog') {
-                    return true;
-                }
-                if (displayFilter.includes('chart') && block.type === 'chart') {
                     return true;
                 }
                 return false;
@@ -263,20 +240,16 @@ function renderDocumentParsingDetails() {
     };
 
     const getTotalParsedBlocksPages = () => {
-        if (expandedBlockId) return 1;
         const filteredBlocks = getFilteredBlocksForPagination();
         return Math.ceil(filteredBlocks.length / blocksPerPage);
     };
 
     const getTotalFilteredBlocksCount = () => {
-        if (expandedBlockId) return 1;
         return getFilteredBlocksForPagination().length;
     };
 
     const getBlocksForCurrentParsedPage = () => {
-        if (expandedBlockId) {
-            return parsedBlocks.filter(block => block.id === expandedBlockId);
-        }
+        // 不再根据 expandedBlockId 只显示一个分块，始终返回当前页所有分块
         const filteredBlocks = getFilteredBlocksForPagination();
         const startIndex = (parsedBlocksCurrentPage - 1) * blocksPerPage;
         const endIndex = startIndex + blocksPerPage;
@@ -284,30 +257,29 @@ function renderDocumentParsingDetails() {
     };
 
     const renderBlockHTML = (block) => {
+        // 修改类型判断逻辑
         const isTextBlock = block.type === 'text' || block.type === 'title' || block.type === 'catlog';
         const isTitleBlock = block.type === 'title';
-        const isCatalogBlock = block.type === 'catlog';
-        const isChartBlock = block.type === 'chart';
+        const isImageBlock = block.type === 'image' || block.type === 'table' || block.type === 'chart';
         const isExpanded = expandedBlockId === block.id;
         const needsTruncation = isTextBlock && block.content && block.content.length > APPROX_LINE_CHAR_LIMIT;
         const needsTruncationImageDesc = !isTextBlock && block.imageDescription && block.imageDescription.length > APPROX_LINE_CHAR_LIMIT;
-        const isHighlighted = highlightedBlockId === block.id || hoveredOriginalArea === block.id;
+        const isHighlighted = highlightedBlockId === block.id;
 
         // 置信度颜色和显示
         const confidence = block.confidence || 0;
         const confidencePercent = Math.round(confidence * 100);
-        // 改为深蓝色背景白色文字
         const confidenceColor = 'bg-blue-600 text-white';
 
         return `
             <div
                 id="block-${block.id}"
-                class="block-item p-4 rounded-lg border transition-all duration-300 cursor-pointer bg-white border-gray-200 min-w-0 box-border min-h-28 py-6 ${highlightedBlockId === block.id ? 'border-blue-500 ring-2 ring-blue-400 shadow-lg' : ''} ${block.disabled ? 'opacity-50 bg-gray-100' : ''}"
+                class="block-item p-4 rounded-lg border transition-all duration-300 cursor-pointer bg-white border-gray-200 min-w-0 box-border min-h-28 py-6 hover:bg-gray-50 hover:border-blue-300 hover:shadow-md ${isHighlighted ? 'border-blue-500 ring-2 ring-blue-400 shadow-lg' : ''} ${block.disabled ? 'opacity-50 bg-gray-100' : ''}"
                 data-id="${block.id}">
                 <div class="flex justify-between items-start mb-2 min-w-0">
                     <div class="flex items-center gap-2 flex-wrap">
-                    <span class="px-2 py-0.5 rounded-full text-xs font-semibold ${isTitleBlock ? 'bg-red-100 text-red-800' : isCatalogBlock ? '' : isChartBlock ? 'bg-pink-100 text-pink-800' : isTextBlock ? 'bg-blue-100 text-blue-800' : block.type === 'table' ? 'bg-purple-100 text-purple-800' : block.type === 'image' ? 'bg-green-100 text-green-800' : ''}"${isCatalogBlock ? ' style="background:#FFEDD5;color:#C2410C;"' : ''}>
-                        ${isTitleBlock ? '标题' : isCatalogBlock ? '目录' : isChartBlock ? '图表' : isTextBlock ? '正文' : block.type === 'table' ? '表格' : block.type === 'image' ? '图片' : ''}
+                    <span class="px-2 py-0.5 rounded-full text-xs font-semibold ${isTitleBlock ? 'bg-red-100 text-red-800' : isTextBlock ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'}">
+                        ${isTitleBlock ? '标题' : isTextBlock ? '文本' : '图片'}
                     </span>
                         <span class="px-2 py-0.5 rounded-full text-xs font-semibold ${confidenceColor}" title="置信度: ${confidencePercent}%">
                             置信度：${confidencePercent}%
@@ -317,48 +289,46 @@ function renderDocumentParsingDetails() {
                         </span>
                     </div>
                     <div class="flex space-x-3 items-center ml-auto">
-                        <!-- 删除按钮已隐藏
-                        <button class="delete-block-btn text-gray-500 hover:text-red-600" data-id="${block.id}" title="删除">
-                            ${Icons.Trash2(18)}
-                        </button>
-                        -->
                         <div class="toggle-disable-btn cursor-pointer" data-id="${block.id}" title="${block.disabled ? '启用' : '禁用'}">
                             ${block.disabled ? Icons.ToggleLeft(24) : Icons.ToggleRight(24)}
                         </div>
                     </div>
                 </div>
+                ${block.keywords && block.keywords.length > 0 ? `
+                    <div class="flex flex-wrap gap-1 mb-2">
+                        ${block.keywords.map(keyword => `
+                            <span class="px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-700">#${keyword}</span>
+                        `).join('')}
+                    </div>
+                ` : ''}
                 ${isTextBlock ? `
-                    <p class="text-gray-700 text-sm leading-relaxed max-w-full break-words overflow-x-auto box-border ${!isExpanded && needsTruncation ? 'line-clamp-4' : ''}" style="box-sizing:border-box;">
+                    <p class="text-gray-700 text-sm leading-relaxed max-w-full break-words box-border ${!isExpanded && needsTruncation ? 'line-clamp-4' : ''}" style="box-sizing:border-box; ${isExpanded ? 'max-height: 450px; overflow-y: auto;' : ''}">
                         ${!isExpanded && needsTruncation ? `
                             ${escapeHTML(block.content.substring(0, APPROX_LINE_CHAR_LIMIT))}
                             <span class="text-gray-400">...</span>
                             <span class="toggle-expand-btn text-blue-600 hover:underline text-sm font-medium inline-block cursor-pointer ml-1" data-id="${block.id}">展开详情</span>
-                        ` : escapeHTML(block.content)}
+                        ` : `
+                            ${escapeHTML(block.content)}
+                            ${needsTruncation ? `<span class="toggle-expand-btn text-blue-600 hover:underline text-sm font-medium inline-block cursor-pointer ml-1" data-id="${block.id}">收起</span>` : ''}
+                        `}
                     </p>
-                    ${isExpanded ? `
-                        <button class="toggle-expand-btn text-blue-600 hover:underline text-sm mt-2 font-medium block" data-id="${block.id}">
-                            收起
-                        </button>
-                    ` : ''}
                 ` : `
                     <div class="flex items-start space-x-4 min-w-0">
                         <div class="flex-shrink-0">
                             <img src="${block.url}" alt="Parsed Image ${block.id}" class="w-16 h-16 object-contain rounded-md cursor-pointer view-detail-img-btn max-w-full box-border" style="box-sizing:border-box;" data-url="${block.url}" data-type="image" />
                         </div>
                         <div class="flex-grow min-w-0">
-                            <p class="text-gray-700 text-sm leading-relaxed max-w-full break-words overflow-x-auto box-border" style="box-sizing:border-box;">
+                            <p class="text-gray-700 text-sm leading-relaxed max-w-full break-words box-border" style="box-sizing:border-box; ${isExpanded ? 'max-height: 250px; overflow-y: auto;' : ''}">
                                 ${needsTruncationImageDesc && !isExpanded ? `
                                     ${escapeHTML(block.imageDescription.substring(0, APPROX_LINE_CHAR_LIMIT))}<span class="text-gray-400">...</span>
                                     <button class="toggle-expand-btn text-blue-600 hover:underline text-sm font-medium inline-block" data-id="${block.id}">
                                         展开详情
                                     </button>
-                                ` : escapeHTML(block.imageDescription)}
+                                ` : `
+                                    ${escapeHTML(block.imageDescription)}
+                                    ${needsTruncationImageDesc ? `<button class="toggle-expand-btn text-blue-600 hover:underline text-sm mt-2 font-medium block" data-id="${block.id}">收起</button>` : ''}
+                                `}
                             </p>
-                            ${isExpanded ? `
-                                <button class="toggle-expand-btn text-blue-600 hover:underline text-sm mt-2 font-medium block" data-id="${block.id}">
-                                    收起
-                                </button>
-                            ` : ''}
                         </div>
                     </div>
                 `}
@@ -409,51 +379,26 @@ function renderDocumentParsingDetails() {
                                      data-page="${pageNum}" />
                                 <div class="absolute left-2 top-2 bg-black bg-opacity-40 text-white text-xs px-2 py-0.5 rounded">
                                     ${pageNum}/${originalFileTotalPages}
-            </div>
-                                
-                                <!-- 只显示当前右边显示的分块边框 -->
-                                ${allFilteredBlocks.map(block => {
-                                    const areas = block.areas ? block.areas.filter(area => area.page === pageNum) : 
-                                                 (block.page === pageNum ? [block.area] : []);
-                                    
-                                    return areas.map(area => {
-                                        const isClickHighlighted = highlightedBlockId === block.id;
-                                        const isHoverHighlighted = hoveredOriginalArea === block.id;
-                                        let highlightClass;
-                                        
-                                        if (block.disabled) {
-                                            // 禁用状态：灰色背景和虚线边框
-                                            if (isClickHighlighted) {
-                                                // 点击高亮：深灰色
-                                                highlightClass = 'bg-gray-600 opacity-70 border-2 border-gray-800 border-dashed animate-pulse';
-                                            } else if (isHoverHighlighted) {
-                                                // 悬浮高亮：中等灰色
-                                                highlightClass = 'bg-gray-400 opacity-60 border-2 border-gray-600 border-dashed';
-                                            } else {
-                                                // 普通状态
-                                                highlightClass = 'bg-gray-300 opacity-50 border-2 border-gray-500 border-dashed';
-                                            }
+                                </div>
+                                ${currentResultTab === 'parsing' ? 
+                                    parsingResultAreas.filter(a => a.page === pageNum).map(areaInfo => {
+                                        const isSelected = selectedParsingBlock === areaInfo.blockId;
+                                        let areaClasses = 'parsing-area-overlay absolute cursor-pointer transition-all duration-200 rounded-md';
+                                        if (isSelected) {
+                                            areaClasses += ' bg-blue-500 bg-opacity-20 border-2 border-blue-500'; // Clicked style
                                         } else {
-                                            // 正常状态：蓝色背景和实线边框
-                                            if (isClickHighlighted) {
-                                                // 点击高亮：深蓝色
-                                                highlightClass = 'bg-blue-600 opacity-50 border-2 border-blue-800 animate-pulse';
-                                            } else if (isHoverHighlighted) {
-                                                // 悬浮高亮：中等蓝色
-                                                highlightClass = 'bg-blue-400 opacity-40 border-2 border-blue-600';
-                                            } else {
-                                                // 普通状态
-                                                highlightClass = 'bg-blue-100 opacity-30 border-2 border-blue-500';
-                                            }
+                                            areaClasses += ' border-2 border-transparent'; // Default
                                         }
-                                        
-                                        return `<div class="absolute ${highlightClass} rounded-md pdf-block-area" 
-                                                     style="top: ${area.top}; left: ${area.left}; width: ${area.width}; height: ${area.height}; pointer-events:auto;" 
-                                                     data-block-id="${block.id}">
-                                                </div>`;
-                                    }).join('');
-                                }).join('')}
-                    </div>
+                                        return `
+                                            <div class="${areaClasses}"
+                                                 style="top:${areaInfo.area.top}; left:${areaInfo.area.left}; width:${areaInfo.area.width}; height:${areaInfo.area.height};"
+                                                 data-block-id="${areaInfo.blockId}"
+                                                 title="点击高亮右侧段落">
+                                            </div>
+                                        `;
+                                    }).join('') 
+                                : ''}
+                            </div>
                             `;
                         }).join('')}
                     </div>
@@ -461,7 +406,68 @@ function renderDocumentParsingDetails() {
                 </div>
             </div>
             <div class="w-2/3 bg-white rounded-xl shadow-lg py-1 px-4 flex flex-col h-full min-h-0 flex-grow min-w-0 box-border">
-                <div class="flex flex-col sm:flex-row justify-between items-center mb-4 space-y-2 sm:space-y-0 sm:space-x-4 min-w-0 mt-4">
+                ${currentResultTab === 'parsing' ? `
+                <!-- 解析结果内容 - 多分块显示 -->
+                <div class="flex flex-col h-full pt-4">
+                    <div id="parsing-result-container" class="flex-grow overflow-y-auto pr-2">
+                        <div class="space-y-1">
+                            <div class="prose prose-gray max-w-none">
+                                ${parsingResultBlocks.map(block => {
+                                    const isSelected = selectedParsingBlock === block.id;
+                                    
+                                    let baseBlockClass = `parsing-content-block p-3 my-2 rounded-lg transition-all duration-300 cursor-pointer`;
+                                    let stateBlockClass = isSelected 
+                                        ? 'bg-blue-100 ring-2 ring-blue-300 shadow-md' // Clicked style
+                                        : 'bg-white'; // Default style
+                                    
+                                    const blockClass = `${baseBlockClass} ${stateBlockClass}`;
+
+                                    let contentHTML = '';
+                                    switch(block.type) {
+                                        case 'h1':
+                                            contentHTML = `<h1 id="${block.id}" class="${blockClass} text-2xl font-bold text-gray-900 mb-0">${block.content}</h1>`;
+                                            break;
+                                        case 'p-italic':
+                                            contentHTML = `<p id="${block.id}" class="${blockClass} text-sm text-gray-600 italic mb-0">${block.content}</p>`;
+                                            break;
+                                        case 'h2':
+                                            contentHTML = `<h2 id="${block.id}" class="${blockClass} text-xl font-semibold text-gray-800 mb-0">${block.content}</h2>`;
+                                            break;
+                                        case 'p':
+                                            contentHTML = `<div id="${block.id}" class="${blockClass}"><p class="text-gray-700 leading-7 mb-0">${block.content}</p></div>`;
+                                            break;
+                                        case 'blockquote':
+                                            contentHTML = `<blockquote id-="${block.id}" class="${blockClass} not-italic border-l-4 border-gray-300 pl-4"><p class="mb-0">${block.content}</p></blockquote>`;
+                                            break;
+                                        case 'h3':
+                                             contentHTML = `<h3 id="${block.id}" class="${blockClass}">${block.content}</h3>`;
+                                             break;
+                                        case 'ul':
+                                            contentHTML = `<ul id="${block.id}" class="${blockClass} list-disc pl-5 space-y-1">
+                                                            ${block.items.map(item => `<li>${item}</li>`).join('')}
+                                                         </ul>`;
+                                            break;
+                                        case 'ol':
+                                             contentHTML = `<ol id="${block.id}" class="${blockClass} list-decimal pl-5 space-y-1">
+                                                             ${block.items.map(item => `<li>${item}</li>`).join('')}
+                                                          </ol>`;
+                                            break;
+                                        case 'pre':
+                                            contentHTML = `<pre id="${block.id}" class="${blockClass} bg-gray-800 text-white p-4 rounded-lg"><code class="font-mono">${block.content}</code></pre>`;
+                                            break;
+                                        default:
+                                            contentHTML = `<div id="${block.id}" class="${blockClass}">${block.content}</div>`;
+                                    }
+                                    return contentHTML;
+                                }).join('')}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                ` : `
+                <!-- 分段结果内容 - 统一简洁布局 -->
+                <div class="flex flex-col h-full pt-4">
+                    <!-- 搜索和筛选区域 -->
                     <div class="mb-4 w-full">
                       <div class="w-full flex justify-between items-center gap-2 mb-0">
                         <div class="flex gap-1 flex-grow">
@@ -485,29 +491,17 @@ function renderDocumentParsingDetails() {
                               ${displayFilter.includes('title') ? 'bg-red-100 text-red-800' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}">
                               标题
                         </button>
-                          <button id="dpd-filter-catalog" class="px-2 py-0.5 rounded-full text-xs font-medium transition-colors duration-200 
-                              ${displayFilter.includes('catalog') ? 'bg-orange-100 text-orange-800' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}" style="${displayFilter.includes('catalog') ? 'background:#FFEDD5;color:#C2410C;' : ''}">
-                              目录
-                          </button>
                           <button id="dpd-filter-text" class="px-2 py-0.5 rounded-full text-xs font-medium transition-colors duration-200 
                               ${displayFilter.includes('text') ? 'bg-blue-100 text-blue-800' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}">
-                              正文
+                              文本
                           </button>
                           <button id="dpd-filter-image" class="px-2 py-0.5 rounded-full text-xs font-medium transition-colors duration-200 
                               ${displayFilter.includes('image') ? 'bg-green-100 text-green-800' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}">
                             图片
                         </button>
-                          <button id="dpd-filter-table" class="px-2 py-0.5 rounded-full text-xs font-medium transition-colors duration-200 
-                              ${displayFilter.includes('table') ? 'bg-purple-100 text-purple-800' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}">
-                              表格
-                          </button>
-                          <button id="dpd-filter-chart" class="px-2 py-0.5 rounded-full text-xs font-medium transition-colors duration-200 
-                              ${displayFilter.includes('chart') ? 'bg-pink-100 text-pink-800' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}">
-                              图表
-                          </button>
                         </div>
                         
-                        <!-- 置信度筛选器 - 移到同一行 -->
+                        <!-- 置信度筛选器 -->
                         <div class="flex items-center gap-2 ml-3 bg-gray-50 border border-gray-200 rounded-full px-3 py-1.5 flex-shrink-0">
                           <div class="flex items-center gap-1.5">
                             <div class="w-0.5 h-4 bg-green-500 rounded-full"></div>
@@ -550,44 +544,47 @@ function renderDocumentParsingDetails() {
                         </div>
                       </div>
                     </div>
-                </div>
 
-                <div class="flex-grow h-[500px] overflow-y-auto pr-2 min-w-0" id="parsed-blocks-container">
-                    <div class="space-y-2 min-w-0">
-                        ${currentBlocksToDisplay.length > 0 ? currentBlocksToDisplay.map(renderBlockHTML).join('') : '<p class="text-center text-gray-500 py-10">当前筛选条件下没有找到分块内容。</p>'}
-                    </div>
-                </div>
-                
-                ${!expandedBlockId && totalParsedPages > 0 ? `
-                    <div class="flex justify-between items-center mt-4 flex-wrap">
-                        <div class="flex items-center space-x-2 mb-2 md:mb-0">
-                            <span class="text-sm text-gray-700">每页显示:</span>
-                            <select id="dpd-blocks-per-page" class="px-2 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                <option value="5" ${blocksPerPage === 5 ? 'selected' : ''}>5</option>
-                                <option value="10" ${blocksPerPage === 10 ? 'selected' : ''}>10</option>
-                                <option value="20" ${blocksPerPage === 20 ? 'selected' : ''}>20</option>
-                            </select>
+                    <!-- 内容滚动区域 - 与解析结果保持一致 -->
+                    <div class="flex-grow overflow-y-auto pr-2">
+                        <div class="space-y-4" id="parsed-blocks-container">
+                            ${currentBlocksToDisplay.length > 0 ? currentBlocksToDisplay.map(renderBlockHTML).join('') : '<p class="text-center text-gray-500 py-10">当前筛选条件下没有找到分块内容。</p>'}
                         </div>
+                    </div>
+                    
+                    <!-- 分页区域 -->
+                    ${!expandedBlockId && totalParsedPages > 0 ? `
+                        <div class="flex justify-between items-center mt-4 flex-wrap">
+                            <div class="flex items-center space-x-2 mb-2 md:mb-0">
+                                <span class="text-sm text-gray-700">每页显示:</span>
+                                <select id="dpd-blocks-per-page" class="px-2 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="5" ${blocksPerPage === 5 ? 'selected' : ''}>5</option>
+                                    <option value="10" ${blocksPerPage === 10 ? 'selected' : ''}>10</option>
+                                    <option value="20" ${blocksPerPage === 20 ? 'selected' : ''}>20</option>
+                                </select>
+                            </div>
 
-                        <div class="flex justify-center items-center space-x-2 mb-2 md:mb-0">
-                             <button id="dpd-parsed-prev-page" class="p-2 rounded-full bg-gray-200 text-gray-700 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed" ${parsedBlocksCurrentPage === 1 ? 'disabled' : ''}>
-                                ${Icons.ChevronLeft(16)}
-                            </button>
-                            ${Array.from({ length: totalParsedPages }).map((_, index) => `
-                                <button class="dpd-parsed-page-btn px-3 py-1 rounded-md text-sm font-medium transition-colors duration-200 
-                                    ${parsedBlocksCurrentPage === index + 1 ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}" data-page="${index + 1}">
-                                    ${index + 1}
+                            <div class="flex justify-center items-center space-x-2 mb-2 md:mb-0">
+                                 <button id="dpd-parsed-prev-page" class="p-2 rounded-full bg-gray-200 text-gray-700 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed" ${parsedBlocksCurrentPage === 1 ? 'disabled' : ''}>
+                                    ${Icons.ChevronLeft(16)}
                                 </button>
-                            `).join('')}
-                            <button id="dpd-parsed-next-page" class="p-2 rounded-full bg-gray-200 text-gray-700 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed" ${parsedBlocksCurrentPage === totalParsedPages ? 'disabled' : ''}>
-                                ${Icons.ChevronRight(16)}
-                            </button>
-                            <span class="text-gray-700 font-medium ml-4">
-                                共 ${totalFilteredCount} 块
-                            </span>
+                                ${Array.from({ length: totalParsedPages }).map((_, index) => `
+                                    <button class="dpd-parsed-page-btn px-3 py-1 rounded-md text-sm font-medium transition-colors duration-200 
+                                        ${parsedBlocksCurrentPage === index + 1 ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}" data-page="${index + 1}">
+                                        ${index + 1}
+                                    </button>
+                                `).join('')}
+                                <button id="dpd-parsed-next-page" class="p-2 rounded-full bg-gray-200 text-gray-700 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed" ${parsedBlocksCurrentPage === totalParsedPages ? 'disabled' : ''}>
+                                    ${Icons.ChevronRight(16)}
+                                </button>
+                                <span class="text-gray-700 font-medium ml-4">
+                                    共 ${totalFilteredCount} 块
+                                </span>
+                            </div>
                         </div>
-                    </div>
-                ` : ''}
+                    ` : ''}
+                </div>
+                `}
             </div>
         </div>
     `;
@@ -597,26 +594,54 @@ function renderDocumentParsingDetails() {
 function attachDocumentParsingDetailsListeners() {
     // console.log("Attaching DocumentParsingDetails listeners");
 
+    // Result Tab navigation listeners
+    const parsingTabBtn = document.getElementById('parsing-tab-btn');
+    const segmentationTabBtn = document.getElementById('segmentation-tab-btn');
+    
+    if (parsingTabBtn) {
+        parsingTabBtn.addEventListener('click', () => {
+            setCurrentResultTab('parsing');
+        });
+    }
+    
+    if (segmentationTabBtn) {
+        segmentationTabBtn.addEventListener('click', () => {
+            setCurrentResultTab('segmentation');
+        });
+    }
+
+    // Parsing block click listeners (for parsing result tab)
+    if (currentResultTab === 'parsing') {
+        const parsingResultContainer = document.getElementById('parsing-result-container');
+        if (parsingResultContainer) {
+             // Right Panel Click Listener
+            parsingResultContainer.addEventListener('click', (e) => {
+                const blockEl = e.target.closest('[id^="pr-"]');
+                if (blockEl) {
+                    handleRightParsingBlockClick(blockEl.id);
+                }
+            });
+        }
+
+        // Listener for clickable areas on the left panel (for parsing result tab)
+        const docPreviewList = document.getElementById('original-doc-preview-list');
+        if (docPreviewList) {
+            docPreviewList.addEventListener('click', (e) => {
+                const area = e.target.closest('[data-block-id]');
+                if (area) {
+                    const blockId = area.dataset.blockId;
+                    handleLeftParsingAreaClick(blockId);
+                }
+            });
+        }
+    }
+
     // Left Panel: Original Document Preview
     const previewList = document.getElementById('original-doc-preview-list');
     if (previewList) {
-        // 使用事件委托处理PDF分块点击
-        previewList.addEventListener('click', (e) => {
-            const pdfBlockArea = e.target.closest('.pdf-block-area');
-            if (pdfBlockArea) {
-                console.log('PDF area clicked via delegation!'); // 调试信息
-                e.stopPropagation();
-                const blockId = pdfBlockArea.getAttribute('data-block-id');
-                console.log('Clicked block ID via delegation:', blockId); // 调试信息
-                handleLeftPdfBlockClick(blockId);
-            }
-        });
-
         // 添加标志位，防止恢复滚动位置时触发滚动事件的重新渲染
         let isRestoringScroll = false;
 
-        // 移除点击事件，不再允许点击页面切换高亮
-        // previewList.addEventListener('click', ...); // 注释或删除
         // 滚动时自动同步当前页
         previewList.addEventListener('scroll', () => {
             // 如果正在恢复滚动位置，则不处理滚动事件
@@ -641,87 +666,87 @@ function attachDocumentParsingDetailsListeners() {
                 renderApp();
             }
         });
-
-        // 添加鼠标移动事件，检测是否悬停在分块区域上
-        previewList.addEventListener('mousemove', (e) => {
-            const currentPageImgs = previewList.querySelectorAll('img[data-page]');
-            let foundBlock = null;
-            
-            currentPageImgs.forEach(img => {
-                const pageNum = parseInt(img.dataset.page);
-                const imgRect = img.getBoundingClientRect();
-                const previewRect = previewList.getBoundingClientRect();
-                
-                // 计算鼠标在图片内的相对位置（百分比）
-                const relativeX = ((e.clientX - imgRect.left) / imgRect.width) * 100;
-                const relativeY = ((e.clientY - imgRect.top) / imgRect.height) * 100;
-                
-                // 检查当前页面的所有分块
-                parsedBlocks.forEach(block => {
-                    if (block.page === pageNum || (block.areas && block.areas.some(area => area.page === pageNum))) {
-                        const areas = block.areas || [{ ...block.area, page: block.page }];
-                        
-                        areas.forEach(area => {
-                            if (area.page === pageNum) {
-                                const areaLeft = parseFloat(area.left);
-                                const areaTop = parseFloat(area.top);
-                                const areaWidth = parseFloat(area.width);
-                                const areaHeight = parseFloat(area.height);
-                                
-                                // 检查鼠标是否在当前分块区域内
-                                if (relativeX >= areaLeft && relativeX <= areaLeft + areaWidth &&
-                                    relativeY >= areaTop && relativeY <= areaTop + areaHeight) {
-                                    foundBlock = block.id;
-                                }
-                            }
-                        });
-                    }
-                });
-            });
-            
-            // 如果找到了新的分块，更新高亮
-            if (foundBlock !== hoveredOriginalArea) {
-                hoveredOriginalArea = foundBlock;
-                // 保存当前滚动位置
-                const scrollTop = previewList.scrollTop;
-                renderApp();
-                // 重新渲染后恢复滚动位置
-                setTimeout(() => {
-                    const newPreviewList = document.getElementById('original-doc-preview-list');
-                    if (newPreviewList) {
-                        isRestoringScroll = true;
-                        newPreviewList.scrollTop = scrollTop;
-                        // 短暂延迟后重置标志位
-                        setTimeout(() => {
-                            isRestoringScroll = false;
-                        }, 50);
-                    }
-                }, 0);
-            }
-        });
-
-        // 鼠标离开预览区域时清除高亮
-        previewList.addEventListener('mouseleave', () => {
-            if (hoveredOriginalArea) {
-                hoveredOriginalArea = null;
-                // 保存当前滚动位置
-                const scrollTop = previewList.scrollTop;
-                renderApp();
-                // 重新渲染后恢复滚动位置
-                setTimeout(() => {
-                    const newPreviewList = document.getElementById('original-doc-preview-list');
-                    if (newPreviewList) {
-                        isRestoringScroll = true;
-                        newPreviewList.scrollTop = scrollTop;
-                        // 短暂延迟后重置标志位
-                        setTimeout(() => {
-                            isRestoringScroll = false;
-                        }, 50);
-                    }
-                }, 0);
-            }
-        });
     }
+
+    // 添加鼠标移动事件，检测是否悬停在分块区域上
+    previewList.addEventListener('mousemove', (e) => {
+        const currentPageImgs = previewList.querySelectorAll('img[data-page]');
+        let foundBlock = null;
+        
+        currentPageImgs.forEach(img => {
+            const pageNum = parseInt(img.dataset.page);
+            const imgRect = img.getBoundingClientRect();
+            const previewRect = previewList.getBoundingClientRect();
+            
+            // 计算鼠标在图片内的相对位置（百分比）
+            const relativeX = ((e.clientX - imgRect.left) / imgRect.width) * 100;
+            const relativeY = ((e.clientY - imgRect.top) / imgRect.height) * 100;
+            
+            // 检查当前页面的所有分块
+            parsedBlocks.forEach(block => {
+                if (block.page === pageNum || (block.areas && block.areas.some(area => area.page === pageNum))) {
+                    const areas = block.areas || [{ ...block.area, page: block.page }];
+                    
+                    areas.forEach(area => {
+                        if (area.page === pageNum) {
+                            const areaLeft = parseFloat(area.left);
+                            const areaTop = parseFloat(area.top);
+                            const areaWidth = parseFloat(area.width);
+                            const areaHeight = parseFloat(area.height);
+                            
+                            // 检查鼠标是否在当前分块区域内
+                            if (relativeX >= areaLeft && relativeX <= areaLeft + areaWidth &&
+                                relativeY >= areaTop && relativeY <= areaTop + areaHeight) {
+                                foundBlock = block.id;
+                            }
+                        }
+                    });
+                }
+            });
+        });
+        
+        // 如果找到了新的分块，更新高亮
+        if (foundBlock !== hoveredOriginalArea) {
+            hoveredOriginalArea = foundBlock;
+            // 保存当前滚动位置
+            const scrollTop = previewList.scrollTop;
+            renderApp();
+            // 重新渲染后恢复滚动位置
+            setTimeout(() => {
+                const newPreviewList = document.getElementById('original-doc-preview-list');
+                if (newPreviewList) {
+                    isRestoringScroll = true;
+                    newPreviewList.scrollTop = scrollTop;
+                    // 短暂延迟后重置标志位
+                    setTimeout(() => {
+                        isRestoringScroll = false;
+                    }, 50);
+                }
+            }, 0);
+        }
+    });
+
+    // 鼠标离开预览区域时清除高亮
+    previewList.addEventListener('mouseleave', () => {
+        if (hoveredOriginalArea) {
+            hoveredOriginalArea = null;
+            // 保存当前滚动位置
+            const scrollTop = previewList.scrollTop;
+            renderApp();
+            // 重新渲染后恢复滚动位置
+            setTimeout(() => {
+                const newPreviewList = document.getElementById('original-doc-preview-list');
+                if (newPreviewList) {
+                    isRestoringScroll = true;
+                    newPreviewList.scrollTop = scrollTop;
+                    // 短暂延迟后重置标志位
+                    setTimeout(() => {
+                        isRestoringScroll = false;
+                    }, 50);
+                }
+            }, 0);
+        }
+    });
 
     const dpdPrevPageBtn = document.getElementById('dpd-prev-page');
     if (dpdPrevPageBtn) {
@@ -873,9 +898,11 @@ function attachDocumentParsingDetailsListeners() {
                 openDetailViewModal(btn.dataset.url, btn.dataset.type);
                 return;
             }
-            // 点击分块本身高亮
+            // 点击分块本身
             if (blockItem && blockId) {
-                         handleBlockSelect(blockId);
+                // The block itself is clicked, not any specific button inside it.
+                // We'll toggle the expansion state.
+                handleToggleExpand(blockId);
             }
         });
     }
@@ -998,11 +1025,72 @@ function attachDocumentParsingDetailsListeners() {
     // 添加Job按钮点击事件
     const jobLinkBtn = document.getElementById('job-link-btn');
     if (jobLinkBtn) {
-      jobLinkBtn.addEventListener('click', () => {
-        alert('跳转到Job详情页面: document-parsing-job-001');
-        // 这里可以添加实际的跳转逻辑，比如：
-        // window.open('/jobs/document-parsing-job-001', '_blank');
-      });
+        jobLinkBtn.addEventListener('click', () => {
+            // 显示一个模态框，展示job详情
+            showDetailViewModal(`
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold text-gray-900">Job ID: document-parsing-job-001</h3>
+                        <span class="px-2.5 py-0.5 rounded-full text-sm font-medium bg-green-100 text-green-800">已完成</span>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">创建时间</p>
+                            <p class="mt-1 text-sm text-gray-900">2024-03-21 14:30:25</p>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">完成时间</p>
+                            <p class="mt-1 text-sm text-gray-900">2024-03-21 14:31:05</p>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">处理文件</p>
+                            <p class="mt-1 text-sm text-gray-900">2112205248_方佳俊_检测简明报告.pdf</p>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">处理状态</p>
+                            <p class="mt-1 text-sm text-gray-900">成功完成解析</p>
+                        </div>
+                    </div>
+
+                    <div class="mt-6">
+                        <h4 class="text-sm font-medium text-gray-900">处理进度</h4>
+                        <div class="mt-2 space-y-4">
+                            <div>
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="text-green-600">✓ 文件上传完成</span>
+                                    <span class="text-gray-500">14:30:25</span>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="text-green-600">✓ 文件预处理</span>
+                                    <span class="text-gray-500">14:30:30</span>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="text-green-600">✓ OCR文字识别</span>
+                                    <span class="text-gray-500">14:30:45</span>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="text-green-600">✓ 版面分析</span>
+                                    <span class="text-gray-500">14:30:55</span>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="text-green-600">✓ 结果整合</span>
+                                    <span class="text-gray-500">14:31:05</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `, 'text');
+        });
     }
 }
 
@@ -1056,51 +1144,13 @@ function handleToggleDisable(id) {
 }
 
 function handleToggleExpand(id) {
+    // 切换展开状态，展开时显示全部内容，收起时只显示部分内容
     if (expandedBlockId === id) {
         expandedBlockId = null;
-        renderApp();
-        return;
+    } else {
+        expandedBlockId = id;
     }
-    expandedBlockId = id;
     renderApp();
-    // 展开后弹出modal浮层
-    setTimeout(() => {
-        const block = parsedBlocks.find(b => b.id === id);
-        if (!block) return;
-        let modal = document.createElement('div');
-        modal.id = 'block-expand-modal';
-        modal.style.position = 'fixed';
-        modal.style.left = '0';
-        modal.style.top = '0';
-        modal.style.width = '100vw';
-        modal.style.height = '100vh';
-        modal.style.zIndex = '9999';
-        modal.style.background = 'rgba(0,0,0,0.18)';
-        modal.innerHTML = `
-          <div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:#fff;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.18);max-width:800px;width:90vw;max-height:80vh;overflow:auto;padding:32px;">
-            <div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;'>
-              <span style='font-size:18px;font-weight:bold;'>${block.type === 'text' ? '文本详情' : '图片详情'}</span>
-              <button id='block-expand-close' style='font-size:20px;color:#888;background:none;border:none;cursor:pointer;'>&times;</button>
-            </div>
-            <div style='font-size:15px;line-height:1.8;white-space:pre-wrap;'>
-              ${block.type === 'text' ? escapeHTML(block.content) : `<img src='${block.url}' style='max-width:100%;border-radius:8px;'><div style='margin-top:8px;color:#666;'>${escapeHTML(block.imageDescription||'')}</div>`}
-            </div>
-          </div>
-        `;
-        document.body.appendChild(modal);
-        document.getElementById('block-expand-close').onclick = () => {
-          expandedBlockId = null;
-          modal.remove();
-          renderApp();
-        };
-        modal.onclick = (e) => {
-          if (e.target === modal) {
-            expandedBlockId = null;
-            modal.remove();
-            renderApp();
-    }
-        };
-    }, 0);
 }
 
 function openDetailViewModal(content, type) {
@@ -1120,32 +1170,13 @@ function handleBlockSelect(id) {
     
     // 否则高亮新的分块
     highlightedBlockId = id;
-    const areaToScroll = hoverAreas.find(area => area.id === id);
-    if (areaToScroll) {
-        // 只滚动左侧，不影响右侧分页等
-        renderApp(); 
-        setTimeout(() => {
-            const previewList = document.getElementById('original-doc-preview-list');
-            if (previewList) {
-                const img = previewList.querySelector(`img[data-page='${areaToScroll.page}']`);
-                if (img) {
-                    img.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-            }
-        }, 100);
-    } else {
-        // 如果没有找到对应的区域，仅重新渲染
-        renderApp();
-    }
+    renderApp();
 }
 
 // 处理左边PDF分块点击事件
 function handleLeftPdfBlockClick(blockId) {
-    console.log('handleLeftPdfBlockClick called with blockId:', blockId); // 调试信息
-    
     // 如果点击的是当前已经高亮的分块，则取消高亮
     if (highlightedBlockId === blockId) {
-        console.log('Canceling highlight for block:', blockId); // 调试信息
         highlightedBlockId = null;
         renderApp();
         return;
@@ -1158,12 +1189,9 @@ function handleLeftPdfBlockClick(blockId) {
     const filteredBlocks = getFilteredBlocksForPagination();
     const blockIndex = filteredBlocks.findIndex(block => block.id === blockId);
     
-    console.log('Filtered blocks:', filteredBlocks.length, 'Block index:', blockIndex); // 调试信息
-    
     if (blockIndex !== -1) {
         // 计算目标页码
         const targetPage = Math.ceil((blockIndex + 1) / blocksPerPage);
-        console.log('Target page:', targetPage, 'Current page:', parsedBlocksCurrentPage); // 调试信息
         parsedBlocksCurrentPage = targetPage;
         
         // 清除展开状态
@@ -1171,30 +1199,7 @@ function handleLeftPdfBlockClick(blockId) {
         
         // 重新渲染
         renderApp();
-        
-        // 滚动到右边对应的分块
-        setTimeout(() => {
-            const rightBlockElement = document.getElementById(`block-${blockId}`);
-            console.log('Right block element found:', !!rightBlockElement); // 调试信息
-            if (rightBlockElement) {
-                rightBlockElement.scrollIntoView({ 
-                    behavior: 'smooth', 
-                    block: 'center' 
-                });
-                
-                // 添加临时高亮效果
-                rightBlockElement.style.transition = 'background-color 0.3s ease';
-                rightBlockElement.style.backgroundColor = '#dbeafe';
-                setTimeout(() => {
-                    rightBlockElement.style.backgroundColor = '';
-                    setTimeout(() => {
-                        rightBlockElement.style.transition = '';
-                    }, 300);
-                }, 600);
-            }
-        }, 100);
     } else {
-        console.log('Block not found in filtered blocks, only highlighting left side'); // 调试信息
         // 如果分块不在当前筛选结果中，仅高亮左边
         renderApp();
     }
@@ -1208,22 +1213,13 @@ function getFilteredBlocksForPagination() {
     if (!displayFilter.includes('all') && displayFilter.length > 0) {
         filtered = parsedBlocks.filter(block => {
             // 检查是否符合任何一个筛选条件（OR逻辑）
-            if (displayFilter.includes('text') && block.type === 'text' && block.id !== 'text_info_title' && block.id !== 'text_info_author') {
+            if (displayFilter.includes('text') && (block.type === 'text' || block.type === 'catlog')) {
                 return true;
             }
-            if (displayFilter.includes('image') && block.type === 'image') {
-                return true;
-            }
-            if (displayFilter.includes('table') && block.type === 'table') {
+            if (displayFilter.includes('image') && (block.type === 'image' || block.type === 'table' || block.type === 'chart')) {
                 return true;
             }
             if (displayFilter.includes('title') && block.type === 'title') {
-                return true;
-            }
-            if (displayFilter.includes('catalog') && block.type === 'catlog') {
-                return true;
-            }
-            if (displayFilter.includes('chart') && block.type === 'chart') {
                 return true;
             }
             return false;
@@ -1262,13 +1258,15 @@ function getFilteredBlocksForPagination() {
 // 挂载到window对象上，供renderDocumentParsingDetails使用
 window.getFilteredBlocksForPagination = getFilteredBlocksForPagination;
 
-function renderSmartSearch() {
-    // console.log("Rendering SmartSearch component");
+// Handle parsing block click (for parsing result tab)
+function handleParsingBlockClick(blockType) {
+    // Set the selected parsing block
+    selectedParsingBlock = blockType;
+    renderApp();
+}
 
+function renderSmartSearch() {
     const renderTextPartHTML = (part, index) => {
-        // In plain JS, we assume parts are already structured correctly,
-        // and `type: "text"` is the primary thing we care about for display here.
-        // The original React code had `if (part.type === "text")`, so we stick to that.
         if (part.type === "text") {
             return `<span key="${index}">${escapeHTML(part.content)}</span>`;
         }
@@ -1305,17 +1303,9 @@ function renderSmartSearch() {
                     alt="Original Document Preview"
                     class="max-w-full max-h-full object-contain"
                 />
-                ${smartSearchHighlightedBlockId && smartSearchParsedBlocks.find(b => b.id === smartSearchHighlightedBlockId) ? `
-                    <div class="absolute bg-blue-500 opacity-30 border-2 border-blue-700 rounded-md animate-pulse"
-                         style="top: ${smartSearchHoverAreas.find(a => a.id === smartSearchHighlightedBlockId)?.y}%; 
-                                left: ${smartSearchHoverAreas.find(a => a.id === smartSearchHighlightedBlockId)?.x}%; 
-                                width: ${smartSearchHoverAreas.find(a => a.id === smartSearchHighlightedBlockId)?.width}%; 
-                                height: ${smartSearchHoverAreas.find(a => a.id === smartSearchHighlightedBlockId)?.height}%;">
-                    </div>
-                ` : ''}
             </div>
             <p class="mt-4 text-gray-600 text-sm">
-                点击文档对话中的分段引用可在此处高亮对应区域。
+                点击文档对话中的分段引用可查看对应内容。
             </p>
         </div>
 
@@ -1362,6 +1352,18 @@ function renderSmartSearch() {
     </div>
     `;
     return html;
+}
+
+function handleSegmentClick(segmentId) {
+    // 显示对应分块的内容
+    const block = smartSearchParsedBlocks.find(b => b.id === segmentId);
+    if (block) {
+        if (block.type === 'text') {
+            showDetailViewModal(block.content, 'text');
+        } else if (block.url) {
+            showDetailViewModal(block.url, 'image');
+        }
+    }
 }
 
 async function handleChatSubmit() {
@@ -1417,25 +1419,6 @@ async function handleChatSubmit() {
         // Scroll to bottom of chat
         const chatContainer = document.getElementById('chat-history-container');
         if (chatContainer) chatContainer.scrollTop = chatContainer.scrollHeight;
-    }
-}
-
-function handleSegmentClick(segmentId) {
-    smartSearchHighlightedBlockId = segmentId;
-    // console.log(`高亮显示分段: ${segmentId}`);
-    renderApp(); // Re-render to show highlight
-    // Optionally scroll the original document preview to the highlighted area
-    const docPreviewEl = document.getElementById('smart-search-doc-preview');
-    const areaToScroll = smartSearchHoverAreas.find(area => area.id === segmentId);
-    if (docPreviewEl && areaToScroll) {
-        const imgElement = docPreviewEl.querySelector('img');
-        if (imgElement) {
-            const imgHeight = imgElement.offsetHeight;
-            const containerHeight = docPreviewEl.offsetHeight;
-            const targetY = (areaToScroll.y / 100) * imgHeight;
-            const scrollPosition = targetY - (containerHeight / 2); 
-            docPreviewEl.scrollTop = Math.max(0, scrollPosition);
-        }
     }
 }
 
@@ -1607,3 +1590,84 @@ function escapeHTML(str) {
         }[match];
     });
 } 
+
+// Data for the "解析结果" tab
+const parsingResultBlocks = [
+    { id: 'pr-title', type: 'h1', content: 'MatrixOne Intelligence多模态AI 数据智能解决方案白皮书' },
+    { id: 'pr-subtitle', type: 'p-italic', content: 'Your Data for Your AI' },
+    { id: 'pr-h2-1', type: 'h2', content: '前言' },
+    { id: 'pr-p-1', type: 'p', content: '在当今时代，Gen 人工智能(Generative AI，简称GenAI)正以前所未有的速度席卷全球，成为推动科技进步和产业变革的重要力量。从 ChatGPT 的横空出世到各类大模型的广泛应用，GenAI 不仅在技术层面取得了突破性进展，更在商业和社会层面引发了深远的影响。从文本生成、图像绘制到视频制作，GenAI 的应用场景日益丰富，为各行各业带来了前所未有的机遇与挑战。' },
+    { id: 'pr-h2-2', type: 'h2', content: '一、项目背景' },
+    { id: 'pr-p-2', type: 'p', content: '随着数据量的爆炸式增长，企业和组织对于高效、智能的数据处理与分析需求日益迫切。多模态AI技术能够融合文本、图像、语音等多种数据类型，实现更全面的信息理解和决策支持。' },
+    { id: 'pr-bq-1', type: 'blockquote', content: '"数据智能的未来属于能够整合多源信息的系统。" —— 行业专家' },
+    { id: 'pr-h3-1', type: 'h3', content: '1.1 发展现状' },
+    { id: 'pr-ul-1', type: 'ul', items: ['自然语言处理（NLP）技术持续突破', '计算机视觉（CV）与语音识别（ASR）深度融合', '大模型驱动的多模态理解能力提升'] },
+    { id: 'pr-h3-2', type: 'h3', content: '1.2 主要挑战' },
+    { id: 'pr-ol-1', type: 'ol', items: ['异构数据的统一表示', '跨模态信息的高效关联', '数据隐私与安全保障'] },
+    { id: 'pr-h2-3', type: 'h2', content: '二、解决方案架构' },
+    { id: 'pr-p-3', type: 'p', content: 'MatrixOne Intelligence 采用分层架构设计，核心包括数据接入层、特征处理层、智能分析层和应用服务层。' },
+    { id: 'pr-pre-1', type: 'pre', content: '数据接入层 → 特征处理层 → 智能分析层 → 应用服务层' },
+    { id: 'pr-h3-3', type: 'h3', content: '2.1 数据接入层' },
+    { id: 'pr-p-4', type: 'p', content: '支持多种数据源的无缝接入，包括结构化数据、非结构化文本、图片、音频等。' },
+    { id: 'pr-h3-4', type: 'h3', content: '2.2 智能分析层' },
+    { id: 'pr-p-5', type: 'p', content: '集成多模态大模型，实现跨模态检索、自动摘要、智能问答等功能。' },
+    { id: 'pr-h2-4', type: 'h2', content: '三、典型应用场景' },
+    { id: 'pr-ul-2', type: 'ul', items: ['智能客服：自动理解用户意图，提供多轮对话支持', '知识管理：文档自动分类、标签推荐、内容摘要', '合规审查：自动检测敏感信息与合规风险'] },
+    { id: 'pr-h2-5', type: 'h2', content: '四、未来展望' },
+    { id: 'pr-p-6', type: 'p', content: '未来，MatrixOne Intelligence 将持续优化多模态AI能力，拓展更多行业场景，推动数据智能生态的繁荣发展。' },
+    { id: 'pr-p-7', type: 'p', content: '更多内容请参考官方文档或联系我们的技术支持团队。' }
+];
+
+// Mock areas on the original document corresponding to parsingResultBlocks
+const parsingResultAreas = [
+    { page: 1, blockId: 'pr-title', area: { top: '4.5%', left: '10%', width: '80%', height: '4%' } },
+    { page: 1, blockId: 'pr-subtitle', area: { top: '9%', left: '10%', width: '80%', height: '2%' } },
+    { page: 1, blockId: 'pr-h2-1', area: { top: '12%', left: '10%', width: '80%', height: '3%' } },
+    { page: 1, blockId: 'pr-p-1', area: { top: '15.5%', left: '10%', width: '80%', height: '8%' } },
+    { page: 1, blockId: 'pr-h2-2', area: { top: '24%', left: '10%', width: '80%', height: '3%' } },
+    { page: 1, blockId: 'pr-p-2', area: { top: '27.5%', left: '10%', width: '80%', height: '4%' } },
+    { page: 1, blockId: 'pr-bq-1', area: { top: '32%', left: '12%', width: '76%', height: '3%' } },
+    { page: 1, blockId: 'pr-h3-1', area: { top: '35.5%', left: '10%', width: '80%', height: '2.5%' } },
+    { page: 1, blockId: 'pr-ul-1', area: { top: '38.5%', left: '12%', width: '76%', height: '5%' } },
+    { page: 1, blockId: 'pr-h3-2', area: { top: '44%', left: '10%', width: '80%', height: '2.5%' } },
+    { page: 1, blockId: 'pr-ol-1', area: { top: '47%', left: '12%', width: '76%', height: '5%' } },
+    { page: 1, blockId: 'pr-h2-3', area: { top: '52.5%', left: '10%', width: '80%', height: '3%' } },
+    { page: 1, blockId: 'pr-p-3', area: { top: '56%', left: '10%', width: '80%', height: '4%' } },
+    { page: 1, blockId: 'pr-pre-1', area: { top: '60.5%', left: '12%', width: '76%', height: '2.5%' } },
+    { page: 1, blockId: 'pr-h3-3', area: { top: '63.5%', left: '10%', width: '80%', height: '2.5%' } },
+    { page: 1, blockId: 'pr-p-4', area: { top: '66.5%', left: '10%', width: '80%', height: '3.5%' } },
+    { page: 1, blockId: 'pr-h3-4', area: { top: '70.5%', left: '10%', width: '80%', height: '2.5%' } },
+    { page: 1, blockId: 'pr-p-5', area: { top: '73.5%', left: '10%', width: '80%', height: '3.5%' } },
+    { page: 1, blockId: 'pr-h2-4', area: { top: '77.5%', left: '10%', width: '80%', height: '3%' } },
+    { page: 1, blockId: 'pr-ul-2', area: { top: '81%', left: '12%', width: '76%', height: '5%' } },
+    { page: 1, blockId: 'pr-h2-5', area: { top: '86.5%', left: '10%', width: '80%', height: '3%' } },
+    { page: 1, blockId: 'pr-p-6', area: { top: '90%', left: '10%', width: '80%', height: '3.5%' } },
+    { page: 1, blockId: 'pr-p-7', area: { top: '94%', left: '10%', width: '80%', height: '2.5%' } }
+];
+
+// Handle click on a parsing result area on the left document preview
+function handleLeftParsingAreaClick(blockId) {
+    // Set the selected block
+    selectedParsingBlock = blockId;
+    
+    // Re-render the app to show the highlight
+    renderApp();
+
+    // Scroll the right panel to the newly highlighted element
+    setTimeout(() => {
+        const highlightedElement = document.getElementById(blockId);
+        const container = document.getElementById('parsing-result-container');
+        if (highlightedElement && container) {
+            const containerRect = container.getBoundingClientRect();
+            const elementRect = highlightedElement.getBoundingClientRect();
+            
+            const offset = elementRect.top - containerRect.top;
+            const currentScrollTop = container.scrollTop;
+
+            container.scrollTo({
+                top: currentScrollTop + offset - 20, // 20px offset from top
+                behavior: 'smooth'
+            });
+        }
+    }, 100); // A small delay to ensure the element is in the DOM after render
+}
