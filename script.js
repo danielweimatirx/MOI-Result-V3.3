@@ -1671,3 +1671,35 @@ function handleLeftParsingAreaClick(blockId) {
         }
     }, 100); // A small delay to ensure the element is in the DOM after render
 }
+
+function handleRightParsingBlockClick(blockId) {
+    // If clicking the already selected block, deselect it
+    if (selectedParsingBlock === blockId) {
+        selectedParsingBlock = null;
+    } else {
+        selectedParsingBlock = blockId;
+
+        // Also, find which page this block belongs to on the left and switch to it
+        const areaInfo = parsingResultAreas.find(a => a.blockId === blockId);
+        if (areaInfo && originalFileCurrentPage !== areaInfo.page) {
+            originalFileCurrentPage = areaInfo.page;
+        }
+    }
+    
+    // Re-render to apply changes
+    renderApp();
+    
+    // After re-rendering, scroll the left preview to the correct page
+    setTimeout(() => {
+        if (selectedParsingBlock) { // Only scroll if a block is selected
+            const areaInfo = parsingResultAreas.find(a => a.blockId === selectedParsingBlock);
+            if (areaInfo) {
+                const previewList = document.getElementById('original-doc-preview-list');
+                const pageElement = previewList?.querySelector(`img[data-page="${areaInfo.page}"]`);
+                if (pageElement) {
+                    pageElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }
+        }
+    }, 100);
+}
