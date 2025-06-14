@@ -294,13 +294,6 @@ function renderDocumentParsingDetails() {
                         </div>
                     </div>
                 </div>
-                ${block.keywords && block.keywords.length > 0 ? `
-                    <div class="flex flex-wrap gap-1 mb-2">
-                        ${block.keywords.map(keyword => `
-                            <span class="px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-700">#${keyword}</span>
-                        `).join('')}
-                    </div>
-                ` : ''}
                 ${isTextBlock ? `
                     <p class="text-gray-700 text-sm leading-relaxed max-w-full break-words box-border ${!isExpanded && needsTruncation ? 'line-clamp-4' : ''}" style="box-sizing:border-box; ${isExpanded ? 'max-height: 450px; overflow-y: auto;' : ''}">
                         ${!isExpanded && needsTruncation ? `
@@ -1614,7 +1607,7 @@ const parsingResultBlocks = [
     { id: 'pr-h2-4', type: 'h2', content: '三、典型应用场景' },
     { id: 'pr-ul-2', type: 'ul', items: ['智能客服：自动理解用户意图，提供多轮对话支持', '知识管理：文档自动分类、标签推荐、内容摘要', '合规审查：自动检测敏感信息与合规风险'] },
     { id: 'pr-h2-5', type: 'h2', content: '四、未来展望' },
-    { id: 'pr-p-6', type: 'p', content: '未来，MatrixOne Intelligence 将持续优化多模态AI能力，拓展更多行业场景，推动数据智能生态的繁荣发展。' },
+    { id: 'pr-p-6', type: 'p', content: '未来，MatrixOne Intelligence 将持续优化多模态AI能力，拓展更多行业场景，推动数据智能生态的繁荣发展。这包括了对更大规模模型的支持、更细粒度的控制能力，以及与现有企业工作流的无缝集成。我们相信，通过不断的创新和迭代，能够为全球用户带来更卓越的数据智能体验，并最终实现数据驱动的决策普及化。这一愿景的实现需要与社区和合作伙伴紧密合作，共同构建一个开放、共享、共赢的生态系统。' },
     { id: 'pr-p-7', type: 'p', content: '更多内容请参考官方文档或联系我们的技术支持团队。' }
 ];
 
@@ -1641,8 +1634,10 @@ const parsingResultAreas = [
     { page: 1, blockId: 'pr-h2-4', area: { top: '77.5%', left: '10%', width: '80%', height: '3%' } },
     { page: 1, blockId: 'pr-ul-2', area: { top: '81%', left: '12%', width: '76%', height: '5%' } },
     { page: 1, blockId: 'pr-h2-5', area: { top: '86.5%', left: '10%', width: '80%', height: '3%' } },
-    { page: 1, blockId: 'pr-p-6', area: { top: '90%', left: '10%', width: '80%', height: '3.5%' } },
-    { page: 1, blockId: 'pr-p-7', area: { top: '94%', left: '10%', width: '80%', height: '2.5%' } }
+    { page: 1, blockId: 'pr-p-6', area: { top: '90%', left: '10%', width: '80%', height: '6%' } },
+    { page: 1, blockId: 'pr-p-7', area: { top: '96.5%', left: '10%', width: '80%', height: '3.5%' } },
+    { page: 2, blockId: 'pr-p-6', area: { top: '0%', left: '10%', width: '80%', height: '8%' } },
+    { page: 2, blockId: 'pr-h2-2', area: { top: '10%', left: '10%', width: '80%', height: '3%' } }
 ];
 
 // Handle click on a parsing result area on the left document preview
